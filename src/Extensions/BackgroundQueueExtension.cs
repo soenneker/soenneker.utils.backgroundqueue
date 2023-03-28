@@ -9,7 +9,7 @@ public static class BackgroundQueueExtension
     /// <summary>
     /// Retrieves <see cref="IBackgroundQueue"/> from the serviceProvider, warming it up
     /// </summary>
-    public static void Warmup(this IServiceProvider services)
+    public static void WarmupBackgroundQueue(this IServiceProvider services)
     {
         services.GetService<IBackgroundQueue>();
     }
