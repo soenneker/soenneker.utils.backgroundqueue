@@ -27,7 +27,7 @@ public class BackgroundQueue : IBackgroundQueue
     {
         _logger = logger;
 
-        int configQueueLength = config.GetValue<int>("Background:QueueLength");
+        var configQueueLength = config.GetValue<int>("Background:QueueLength");
         _log = config.GetValue<bool>("Background:Log");
 
         if (configQueueLength > 1)

@@ -6,7 +6,7 @@ namespace Soenneker.Utils.BackgroundQueue.Abstract;
 
 /// <summary>
 /// Adds Tasks and ValueTasks to the QueuedHostedService. <para/>
-/// Singleton IoC
+/// Must be Singleton IoC
 /// </summary>
 public interface IBackgroundQueue
 {

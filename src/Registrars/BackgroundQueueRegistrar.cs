@@ -7,7 +7,7 @@ namespace Soenneker.Utils.BackgroundQueue.Registrars;
 public static class BackgroundQueueRegistrar
 {
     /// <summary>
-    /// Registers a high-performance background Task/ValueTask queue (Singleton)
+    /// Tries to register a high-performance background Task/ValueTask queue (Singleton) as a HostedService
     /// </summary>
     public static void AddBackgroundQueue(this IServiceCollection services)
     {
