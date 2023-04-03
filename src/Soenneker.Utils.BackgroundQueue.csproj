@@ -42,6 +42,6 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="1.0.3" />
-        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="1.0.3" />
+        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="1.0.5" />
     </ItemGroup>
 </Project>
