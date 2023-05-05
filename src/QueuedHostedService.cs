@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Nito.AsyncEx;
 using Soenneker.Extensions.MethodInfo;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
@@ -16,6 +17,9 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
     private readonly ILogger<QueuedHostedService> _logger;
 
     private readonly bool _log;
+    private readonly bool _lockCounts;
+
+    private readonly AsyncLock? _asyncLock;
 
     private int _taskProcessingCount;
     private int _valueTaskProcessingCount;
@@ -23,9 +27,13 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
     public QueuedHostedService(IConfiguration config, IBackgroundQueue queue, ILogger<QueuedHostedService> logger)
     {
         _log = config.GetValue<bool>("Background:Log");
+        _lockCounts = config.GetValue<bool>("Background:LockCounts");
 
         _queue = queue;
         _logger = logger;
+
+        if (_lockCounts)
+            _asyncLock = new AsyncLock();
     }
 
     /// <summary>
@@ -63,13 +71,13 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
 
             try
             {
+                await ChangeTaskCounter(true);
+
                 if (_log)
                 {
                     workItemName = workItem.Method.GetSignature();
                     _logger.LogDebug("~~ QueuedHostedService: Starting Task: {item}", workItemName);
                 }
-
-                Interlocked.Increment(ref _taskProcessingCount);
 
                 await workItem(stoppingToken);
 
@@ -82,11 +90,51 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                Interlocked.Decrement(ref _taskProcessingCount);
+                await ChangeTaskCounter(false);
             }
         }
     }
 
+    private async ValueTask ChangeValueTaskCounter(bool increment)
+    {
+        if (!_lockCounts)
+        {
+            if (increment)
+                Interlocked.Increment(ref _valueTaskProcessingCount);
+            else
+                Interlocked.Decrement(ref _valueTaskProcessingCount);
+            return;
+        }
+
+        using (await _asyncLock!.LockAsync())
+        {
+            if (increment)
+                _valueTaskProcessingCount++;
+            else
+                _valueTaskProcessingCount--;
+        }
+    }
+
+    private async ValueTask ChangeTaskCounter(bool increment)
+    {
+        if (!_lockCounts)
+        {
+            if (increment)
+                Interlocked.Increment(ref _taskProcessingCount);
+            else
+                Interlocked.Decrement(ref _taskProcessingCount);
+            return;
+        }
+
+        using (await _asyncLock!.LockAsync())
+        {
+            if (increment)
+                _taskProcessingCount++;
+            else
+                _taskProcessingCount--;
+        }
+    }
+    
     private async Task ValueTaskProcessing(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -97,13 +145,13 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
 
             try
             {
+                await ChangeValueTaskCounter(true);
+
                 if (_log)
                 {
                     workItemName = workItem.Method.GetSignature();
                     _logger.LogDebug("~~ QueuedHostedService: Starting ValueTask: {item}", workItemName);
                 }
-
-                Interlocked.Increment(ref _valueTaskProcessingCount);
 
                 await workItem(stoppingToken);
 
@@ -116,7 +164,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                Interlocked.Decrement(ref _valueTaskProcessingCount);
+                await ChangeValueTaskCounter(false);
             }
         }
     }
@@ -132,8 +180,14 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
         await base.StopAsync(stoppingToken);
     }
 
-    public (int TaskLength, int ValueTaskLength) GetCountOfProcessingTasks()
+    public async ValueTask<(int TaskLength, int ValueTaskLength)> GetCountOfProcessingTasks()
     {
-        return (_taskProcessingCount, _valueTaskProcessingCount);
+        if (!_lockCounts)
+            return (_taskProcessingCount, _valueTaskProcessingCount);
+
+        using (await _asyncLock!.LockAsync())
+        {
+            return (_taskProcessingCount, _valueTaskProcessingCount);
+        }
     }
 }

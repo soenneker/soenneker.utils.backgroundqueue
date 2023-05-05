@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 
 namespace Soenneker.Utils.BackgroundQueue.Abstract;
 
@@ -7,5 +8,5 @@ namespace Soenneker.Utils.BackgroundQueue.Abstract;
 /// </summary>
 public interface IQueuedHostedService : IHostedService
 {
-    (int TaskLength, int ValueTaskLength) GetCountOfProcessingTasks();
+    ValueTask<(int TaskLength, int ValueTaskLength)> GetCountOfProcessingTasks();
 }
