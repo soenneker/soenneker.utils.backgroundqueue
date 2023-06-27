@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Soenneker.Utils.BackgroundQueue.Abstract;
 
 /// <summary>
-/// Adds Tasks and ValueTasks to the QueuedHostedService. <para/>
+/// Adds Tasks and ValueTasks to the <see cref="QueuedHostedService"/>. <para/>
 /// Must be Singleton IoC
 /// </summary>
 public interface IBackgroundQueue
@@ -18,5 +18,8 @@ public interface IBackgroundQueue
 
     ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken);
 
-    (int TaskLength, int ValueTaskLength) GetLengthsOfQueues();
+    /// <summary>
+    /// Returns the channel lengths via thread safe (and potentially locked) local variables
+    /// </summary>
+    ValueTask<(int TaskLength, int ValueTaskLength)> GetCountsOfChannels();
 }

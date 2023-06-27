@@ -65,13 +65,15 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            Func<CancellationToken, Task> workItem = await _queue.DequeueTask(stoppingToken);
-
-            string? workItemName = null;
+            Func<CancellationToken, Task>? workItem = null;
 
             try
             {
                 await ChangeTaskCounter(true);
+
+                string? workItemName = null;
+
+                workItem = await _queue.DequeueTask(stoppingToken);
 
                 if (_log)
                 {
@@ -86,7 +88,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "~~ QueuedHostedService:: Error executing Task: {item}.", workItem.Method.GetSignature());
+                _logger.LogError(ex, "~~ QueuedHostedService:: Error executing Task: {item}", workItem?.Method.GetSignature());
             }
             finally
             {
@@ -139,13 +141,15 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            Func<CancellationToken, ValueTask> workItem = await _queue.DequeueValueTask(stoppingToken);
-
-            string? workItemName = null;
+            Func<CancellationToken, ValueTask>? workItem = null;
 
             try
             {
+                string? workItemName = null;
+
                 await ChangeValueTaskCounter(true);
+
+                workItem = await _queue.DequeueValueTask(stoppingToken);
 
                 if (_log)
                 {
@@ -160,7 +164,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "~~ QueuedHostedService: Error executing ValueTask: {item}.", workItem.Method.GetSignature());
+                _logger.LogError(ex, "~~ QueuedHostedService: Error executing ValueTask: {item}", workItem?.Method.GetSignature());
             }
             finally
             {
