@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue.Registrars;
 
+/// <summary>
+/// A high-performance background Task/ValueTask queue
+/// </summary>
 public static class BackgroundQueueRegistrar
 {
     /// <summary>
@@ -15,5 +17,6 @@ public static class BackgroundQueueRegistrar
         services.TryAddSingleton<IQueuedHostedService, QueuedHostedService>();
         services.AddHostedService(svc => svc.GetService<IQueuedHostedService>()!); // TODO: TryAdd for HostedService
         services.TryAddSingleton<IBackgroundQueue, BackgroundQueue>();
+        services.TryAddSingleton<IQueueInformationUtil, QueueInformationUtil>();
     }
 }

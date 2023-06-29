@@ -4,7 +4,6 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Nito.AsyncEx;
 using Soenneker.Extensions.Double;
 using Soenneker.Extensions.MethodInfo;
 using Soenneker.Utils.BackgroundQueue.Abstract;
@@ -21,25 +20,17 @@ public class BackgroundQueue : IBackgroundQueue
     private readonly int _queueWarning;
 
     private readonly ILogger<BackgroundQueue> _logger;
+    private readonly IQueueInformationUtil _informationUtil;
 
     private readonly bool _log;
-    private readonly bool _lockCounts;
 
-    private readonly AsyncLock? _asyncLock;
-
-    private int _taskChannelCount;
-    private int _valueTaskChannelCount;
-
-    public BackgroundQueue(IConfiguration config, ILogger<BackgroundQueue> logger)
+    public BackgroundQueue(IConfiguration config, ILogger<BackgroundQueue> logger, IQueueInformationUtil informationUtil)
     {
         _logger = logger;
+        _informationUtil = informationUtil;
 
         var configQueueLength = config.GetValue<int>("Background:QueueLength");
         _log = config.GetValue<bool>("Background:Log");
-        _lockCounts = config.GetValue<bool>("Background:LockCounts");
-
-        if (_lockCounts)
-            _asyncLock = new AsyncLock();
 
         if (configQueueLength > 1)
         {
@@ -68,10 +59,13 @@ public class BackgroundQueue : IBackgroundQueue
     {
         // TODO: need to redo this, we're going to get too many warnings
 
-        await ChangeValueTaskCounter(true);
+        int count = await _informationUtil.IncrementValueTaskCounter();
 
-        if (_valueTaskChannelCount > _queueWarning)
-            _logger.LogWarning("ValueTask queue length ({length}) is currently greater than the warning ({_queueWarning}), and will wait after hitting limit ({_queueLimit})", _valueTaskChannelCount, _queueWarning, _queueLimit);
+        if (count > _queueWarning)
+        {
+            _logger.LogWarning("ValueTask queue length ({length}) is currently greater than the warning ({_queueWarning}), and will wait after hitting limit ({_queueLimit})", count,
+                _queueWarning, _queueLimit);
+        }
 
         if (_log)
             _logger.LogDebug("Queuing ValueTask: {name}", workItem.ToString());
@@ -81,10 +75,13 @@ public class BackgroundQueue : IBackgroundQueue
 
     public async ValueTask QueueTask(Func<CancellationToken, Task> workItem)
     {
-        await ChangeTaskCounter(true);
+        int count = await _informationUtil.IncrementTaskCounter();
 
-        if (_taskChannelCount > _queueWarning)
-            _logger.LogWarning("ValueTask queue length ({length}) is currently greater than the warning ({_queueWarning}), and will wait after hitting limit ({_queueLimit})", _taskChannelCount, _queueWarning, _queueLimit);
+        if (count > _queueWarning)
+        {
+            _logger.LogWarning("ValueTask queue length ({length}) is currently greater than the warning ({_queueWarning}), and will wait after hitting limit ({_queueLimit})", count,
+                _queueWarning, _queueLimit);
+        }
 
         if (_log)
             _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
@@ -92,72 +89,13 @@ public class BackgroundQueue : IBackgroundQueue
         await _taskChannel.Writer.WriteAsync(workItem);
     }
 
-    private async ValueTask ChangeValueTaskCounter(bool increment)
+    public ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken)
     {
-        if (!_lockCounts)
-        {
-            if (increment)
-                Interlocked.Increment(ref _valueTaskChannelCount);
-            else
-                Interlocked.Decrement(ref _valueTaskChannelCount);
-            return;
-        }
-
-        using (await _asyncLock!.LockAsync())
-        {
-            if (increment)
-                _valueTaskChannelCount++;
-            else
-                _valueTaskChannelCount--;
-        }
+        return _valueTaskChannel.Reader.ReadAsync(cancellationToken);
     }
 
-    private async ValueTask ChangeTaskCounter(bool increment)
+    public ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken)
     {
-        if (!_lockCounts)
-        {
-            if (increment)
-                Interlocked.Increment(ref _taskChannelCount);
-            else
-                Interlocked.Decrement(ref _taskChannelCount);
-            return;
-        }
-
-        using (await _asyncLock!.LockAsync())
-        {
-            if (increment)
-                _taskChannelCount++;
-            else
-                _taskChannelCount--;
-        }
-    }
-
-    public async ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken)
-    {
-        Func<CancellationToken, ValueTask> result = await _valueTaskChannel.Reader.ReadAsync(cancellationToken);
-
-        await ChangeValueTaskCounter(false);
-
-        return result;
-    }
-
-    public async ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken)
-    {
-        Func<CancellationToken, Task> result = await _taskChannel.Reader.ReadAsync(cancellationToken);
-
-        await ChangeTaskCounter(false);
-
-        return result;
-    }
-
-    public async ValueTask<(int TaskLength, int ValueTaskLength)> GetCountsOfChannels()
-    {
-        if (!_lockCounts)
-            return (_taskChannelCount, _valueTaskChannelCount);
-
-        using (await _asyncLock!.LockAsync())
-        {
-            return (_taskChannelCount, _valueTaskChannelCount);
-        }
+        return _taskChannel.Reader.ReadAsync(cancellationToken);
     }
 }

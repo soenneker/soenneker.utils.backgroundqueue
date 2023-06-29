@@ -17,9 +17,4 @@ public interface IBackgroundQueue
     ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken);
 
     ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Returns the channel lengths via thread safe (and potentially locked) local variables
-    /// </summary>
-    ValueTask<(int TaskLength, int ValueTaskLength)> GetCountsOfChannels();
 }
