@@ -21,7 +21,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
         <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="1.0.52" />
         <PackageReference Include="Soenneker.Fixtures.Unit" Version="1.0.69" />
-        <PackageReference Include="Soenneker.Utils.Test" Version="1.0.38" />
+        <PackageReference Include="Soenneker.Utils.Test" Version="1.0.39" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
