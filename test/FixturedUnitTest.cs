@@ -7,7 +7,6 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using Serilog.Sinks.XUnit.Injectable.Abstract;
 using Soenneker.Extensions.ServiceProvider;
-using Soenneker.Fixtures.Unit;
 using Soenneker.Tests.Logging;
 using Soenneker.Tests.Unit;
 using Soenneker.Utils.BackgroundQueue.Abstract;

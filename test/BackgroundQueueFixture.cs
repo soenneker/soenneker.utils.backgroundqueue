@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Soenneker.Fixtures.Unit;
 using Soenneker.Utils.BackgroundQueue.Extensions;
 using Soenneker.Utils.BackgroundQueue.Registrars;
 using Soenneker.Utils.Test;
