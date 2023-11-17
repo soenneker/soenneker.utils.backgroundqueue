@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
@@ -19,8 +18,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="1.0.80" />
-        <PackageReference Include="Soenneker.Utils.Test" Version="1.0.66" />
+        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="2.1.4" />
+        <PackageReference Include="Soenneker.Utils.Test" Version="2.1.4" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
