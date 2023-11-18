@@ -18,8 +18,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="2.1.8" />
-        <PackageReference Include="Soenneker.Utils.Test" Version="2.1.6" />
+        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="2.1.11" />
+        <PackageReference Include="Soenneker.Utils.Test" Version="2.1.11" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -28,7 +28,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Tests.Unit" Version="2.1.10" />
+        <PackageReference Include="Soenneker.Tests.Unit" Version="2.1.14" />
     </ItemGroup>
 
     <ItemGroup>
