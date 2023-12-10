@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.Double;
 using Soenneker.Extensions.MethodInfo;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue;
@@ -59,7 +60,7 @@ public class BackgroundQueue : IBackgroundQueue
     {
         // TODO: need to redo this, we're going to get too many warnings
 
-        int count = await _informationUtil.IncrementValueTaskCounter();
+        int count = await _informationUtil.IncrementValueTaskCounter().NoSync();
 
         if (count > _queueWarning)
         {
@@ -70,12 +71,12 @@ public class BackgroundQueue : IBackgroundQueue
         if (_log)
             _logger.LogDebug("Queuing ValueTask: {name}", workItem.ToString());
 
-        await _valueTaskChannel.Writer.WriteAsync(workItem);
+        await _valueTaskChannel.Writer.WriteAsync(workItem).NoSync();
     }
 
     public async ValueTask QueueTask(Func<CancellationToken, Task> workItem)
     {
-        int count = await _informationUtil.IncrementTaskCounter();
+        int count = await _informationUtil.IncrementTaskCounter().NoSync();
 
         if (count > _queueWarning)
         {
@@ -86,7 +87,7 @@ public class BackgroundQueue : IBackgroundQueue
         if (_log)
             _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
 
-        await _taskChannel.Writer.WriteAsync(workItem);
+        await _taskChannel.Writer.WriteAsync(workItem).NoSync();
     }
 
     public ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken)

@@ -15,9 +15,9 @@ public class BackgroundQueueTests : FixturedUnitTest
         _util = Resolve<IBackgroundQueue>();
     }
 
-    private async Task TestTask()
+    private Task TestTask()
     {
-        await Delay(1500, "test...");
+        return Delay(1500, "test...");
     }
 
     private async ValueTask TestValueTask()

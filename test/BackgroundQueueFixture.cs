@@ -31,10 +31,10 @@ public class BackgroundQueueFixture : UnitFixture
         services.AddBackgroundQueue();
     }
 
-    public override async Task DisposeAsync()
+    public override Task DisposeAsync()
     {
         ServiceProvider?.StopBackgroundQueue();
 
-        await base.DisposeAsync();
+        return base.DisposeAsync();
     }
 }

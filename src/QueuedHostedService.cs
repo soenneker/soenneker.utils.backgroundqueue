@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.MethodInfo;
+using Soenneker.Extensions.Task;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue;
@@ -30,12 +32,12 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
     /// <summary>
     /// Needs calling manually from unit test fixtures to start it
     /// </summary>
-    public override async Task StartAsync(CancellationToken cancellationToken)
+    public override Task StartAsync(CancellationToken cancellationToken)
     {
         if (_log)
             _logger.LogDebug("~~ QueuedHostedService: Starting...");
 
-        await base.StartAsync(cancellationToken);
+        return base.StartAsync(cancellationToken);
     }
 
     /// <summary>
@@ -49,7 +51,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
         Task valueTaskProcessing = ValueTaskProcessing(stoppingToken);
         Task taskProcessing = TaskProcessing(stoppingToken);
 
-        await Task.WhenAll(valueTaskProcessing, taskProcessing);
+        await Task.WhenAll(valueTaskProcessing, taskProcessing).NoSync();
     }
 
     private async Task TaskProcessing(CancellationToken stoppingToken)
@@ -62,7 +64,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             {
                 string? workItemName = null;
 
-                workItem = await _queue.DequeueTask(stoppingToken);
+                workItem = await _queue.DequeueTask(stoppingToken).NoSync();
 
                 if (_log)
                 {
@@ -70,7 +72,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
                     _logger.LogDebug("~~ QueuedHostedService: Starting Task: {item}", workItemName);
                 }
 
-                await workItem(stoppingToken);
+                await workItem(stoppingToken).NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed Task: {item}", workItemName);
@@ -81,7 +83,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                await _queueInformationUtil.DecrementTaskCounter();
+                await _queueInformationUtil.DecrementTaskCounter().NoSync();
             }
         }
     }
@@ -96,7 +98,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             {
                 string? workItemName = null;
 
-                workItem = await _queue.DequeueValueTask(stoppingToken);
+                workItem = await _queue.DequeueValueTask(stoppingToken).NoSync();
 
                 if (_log)
                 {
@@ -104,7 +106,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
                     _logger.LogDebug("~~ QueuedHostedService: Starting ValueTask: {item}", workItemName);
                 }
 
-                await workItem(stoppingToken);
+                await workItem(stoppingToken).NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed ValueTask: {item}", workItemName);
@@ -115,7 +117,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                await _queueInformationUtil.DecrementValueTaskCounter();
+                await _queueInformationUtil.DecrementValueTaskCounter().NoSync();
             }
         }
     }
@@ -123,11 +125,11 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
     /// <summary>
     /// Triggered when the application host is performing a graceful shutdown.
     /// </summary>
-    public override async Task StopAsync(CancellationToken stoppingToken)
+    public override Task StopAsync(CancellationToken stoppingToken)
     {
         if (_log)
             _logger.LogDebug("~~ QueuedHostedService: Stopping service...");
 
-        await base.StopAsync(stoppingToken);
+        return base.StopAsync(stoppingToken);
     }
 }

@@ -29,7 +29,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
         if (!_lockCounts)
             return (_taskCount, _valueTaskCount);
 
-        using (await _asyncLock!.LockAsync())
+        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
         {
             return (_taskCount, _valueTaskCount);
         }
@@ -45,7 +45,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return false;
         }
 
-        using (await _asyncLock!.LockAsync())
+        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
         {
             if (_valueTaskCount > 0 || _taskCount > 0)
                 return true;
@@ -63,7 +63,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _valueTaskCount;
         }
 
-        using (await _asyncLock!.LockAsync())
+        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
         {
             _valueTaskCount++;
 
@@ -80,7 +80,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _valueTaskCount;
         }
 
-        using (await _asyncLock!.LockAsync())
+        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
         {
             _valueTaskCount--;
 
@@ -97,7 +97,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _taskCount;
         }
 
-        using (await _asyncLock!.LockAsync())
+        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
         {
             _taskCount++;
 
@@ -113,7 +113,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _taskCount;
         }
 
-        using (await _asyncLock!.LockAsync())
+        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
         {
             _taskCount--;
 
