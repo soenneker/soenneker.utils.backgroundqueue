@@ -8,5 +8,5 @@
 ## Installation
 
 ```
-Install-Package Soenneker.Utils.BackgroundQueue
+dotnet add package Soenneker.Utils.BackgroundQueue
 ```
