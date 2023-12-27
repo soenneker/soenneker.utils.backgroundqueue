@@ -14,7 +14,7 @@
         <AssemblyName>Soenneker.Utils.BackgroundQueue</AssemblyName>
         <PackageId>Soenneker.Utils.BackgroundQueue</PackageId>
         <PackageTags>background queue task valuetask c# .net dotnet</PackageTags>
-        <Copyright>Copyright © 2023 Jake Soenneker</Copyright>
+        <Copyright>Copyright © 2024 Jake Soenneker</Copyright>
         <Authors>Jake Soenneker</Authors>
         <Company>https://soenneker.com</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
