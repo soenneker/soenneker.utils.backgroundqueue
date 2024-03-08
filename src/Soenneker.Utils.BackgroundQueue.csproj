@@ -39,7 +39,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
         <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
-        <PackageReference Include="Soenneker.Extensions.Configuration" Version="2.1.218" />
+        <PackageReference Include="Soenneker.Extensions.Configuration" Version="2.1.219" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="2.1.160" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="2.1.158" />
     </ItemGroup>
