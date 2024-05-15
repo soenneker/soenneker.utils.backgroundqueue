@@ -19,17 +19,17 @@ public static class BackgroundQueueExtension
     /// <summary>
     /// Retrieves <see cref="IBackgroundQueue"/> from the <see cref="IServiceProvider"/>, warming it up, and then starts it (typically in testing scenarios, this isn't necessary with WebApplicationFactory or regular apps)
     /// </summary>
-    public static Task WarmupAndStartBackgroundQueue(this IServiceProvider services)
+    public static Task WarmupAndStartBackgroundQueue(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         services.WarmupBackgroundQueue();
-        return services.StartBackgroundQueue();
+        return services.StartBackgroundQueue(cancellationToken);
     }
 
     /// <inheritdoc cref="WarmupAndStartBackgroundQueue"/>
-    public static void WarmupAndStartBackgroundQueueSync(this IServiceProvider services)
+    public static void WarmupAndStartBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         services.WarmupBackgroundQueue();
-        services.StartBackgroundQueue();
+        services.StartBackgroundQueueSync(cancellationToken);
     }
 
     /// <inheritdoc cref="StartBackgroundQueue"/>
@@ -56,7 +56,7 @@ public static class BackgroundQueueExtension
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();
 
-        if (queuedHostedService == null) 
+        if (queuedHostedService == null)
             return;
 
         queuedHostedService.StopAsync(cancellationToken);
