@@ -9,15 +9,15 @@ using Soenneker.Utils.Test;
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
-public class BackgroundQueueFixture : UnitFixture
+public class Fixture : UnitFixture
 {
     public override async Task InitializeAsync()
     {
         SetupIoC(Services);
 
-        await base.InitializeAsync();
+        await base.InitializeAsync().ConfigureAwait(false);
 
-        ServiceProvider!.WarmupAndStartBackgroundQueue();
+        await ServiceProvider!.WarmupAndStartBackgroundQueue().ConfigureAwait(false);
     }
 
     private static void SetupIoC(IServiceCollection services)
@@ -31,10 +31,11 @@ public class BackgroundQueueFixture : UnitFixture
         services.AddBackgroundQueue();
     }
 
-    public override Task DisposeAsync()
+    public override async Task DisposeAsync()
     {
-        ServiceProvider?.StopBackgroundQueue();
+        if (ServiceProvider != null)
+            await ServiceProvider.StopBackgroundQueue().ConfigureAwait(false);
 
-        return base.DisposeAsync();
+        await base.DisposeAsync().ConfigureAwait(false);
     }
 }

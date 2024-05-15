@@ -7,7 +7,7 @@ namespace Soenneker.Utils.BackgroundQueue.Tests;
 /// to be the place to apply [CollectionDefinition] and all the
 /// <see cref="ICollectionFixture{TFixture}"/> interfaces.
 /// </summary>
-[CollectionDefinition("BackgroundQueueCollection")]
-public class BackgroundQueueCollection : ICollectionFixture<BackgroundQueueFixture>
+[CollectionDefinition("Collection")]
+public class Collection : ICollectionFixture<Fixture>
 {
 }

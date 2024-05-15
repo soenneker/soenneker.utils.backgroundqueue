@@ -5,12 +5,12 @@ using Xunit.Abstractions;
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
-[Collection("BackgroundQueueCollection")]
+[Collection("Collection")]
 public class BackgroundQueueTests : FixturedUnitTest
 {
     private readonly IBackgroundQueue _util;
 
-    public BackgroundQueueTests(BackgroundQueueFixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public BackgroundQueueTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
     {
         _util = Resolve<IBackgroundQueue>();
     }
