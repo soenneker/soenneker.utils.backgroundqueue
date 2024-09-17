@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\src\Soenneker.Utils.BackgroundQueue.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Utils.BackgroundQueue.csproj" />
     </ItemGroup>
 
 </Project>
