@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Soenneker.Extensions.Task;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue.Extensions;
@@ -59,7 +60,7 @@ public static class BackgroundQueueExtension
         if (queuedHostedService == null)
             return;
 
-        queuedHostedService.StopAsync(cancellationToken);
+        queuedHostedService.StopAsync(cancellationToken).NoSync().GetAwaiter().GetResult();
         queuedHostedService.Dispose();
     }
 
@@ -70,7 +71,7 @@ public static class BackgroundQueueExtension
         if (queuedHostedService == null)
             return;
 
-        await queuedHostedService.StopAsync(cancellationToken);
+        await queuedHostedService.StopAsync(cancellationToken).NoSync();
         queuedHostedService.Dispose();
     }
 }
