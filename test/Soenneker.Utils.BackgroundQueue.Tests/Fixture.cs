@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Soenneker.Extensions.Task;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Extensions;
 using Soenneker.Utils.BackgroundQueue.Registrars;
 using Soenneker.Utils.Test;
@@ -15,9 +17,9 @@ public class Fixture : UnitFixture
     {
         SetupIoC(Services);
 
-        await base.InitializeAsync().ConfigureAwait(false);
+        await base.InitializeAsync().NoSync();
 
-        await ServiceProvider!.WarmupAndStartBackgroundQueue().ConfigureAwait(false);
+        await ServiceProvider!.WarmupAndStartBackgroundQueue().NoSync();
     }
 
     private static void SetupIoC(IServiceCollection services)
@@ -34,8 +36,8 @@ public class Fixture : UnitFixture
     public override async Task DisposeAsync()
     {
         if (ServiceProvider != null)
-            await ServiceProvider.StopBackgroundQueue().ConfigureAwait(false);
+            await ServiceProvider.StopBackgroundQueue().NoSync();
 
-        await base.DisposeAsync().ConfigureAwait(false);
+        await base.DisposeAsync().NoSync();
     }
 }

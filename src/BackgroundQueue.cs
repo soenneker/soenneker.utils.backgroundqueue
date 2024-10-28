@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.Double;
 using Soenneker.Extensions.MethodInfo;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue;
@@ -55,11 +56,11 @@ public class BackgroundQueue : IBackgroundQueue
         _taskChannel = Channel.CreateBounded<Func<CancellationToken, Task>>(options);
     }
 
-    public async ValueTask QueueValueTask(Func<CancellationToken, ValueTask> workItem)
+    public async ValueTask QueueValueTask(Func<CancellationToken, ValueTask> workItem, CancellationToken cancellationToken = default)
     {
         // TODO: need to redo this, we're going to get too many warnings
 
-        int count = await _informationUtil.IncrementValueTaskCounter().ConfigureAwait(false);
+        int count = await _informationUtil.IncrementValueTaskCounter(cancellationToken).ConfigureAwait(false);
 
         if (count > _queueWarning)
         {
@@ -70,12 +71,12 @@ public class BackgroundQueue : IBackgroundQueue
         if (_log)
             _logger.LogDebug("Queuing ValueTask: {name}", workItem.ToString());
 
-        await _valueTaskChannel.Writer.WriteAsync(workItem).ConfigureAwait(false);
+        await _valueTaskChannel.Writer.WriteAsync(workItem, cancellationToken).NoSync();
     }
 
-    public async ValueTask QueueTask(Func<CancellationToken, Task> workItem)
+    public async ValueTask QueueTask(Func<CancellationToken, Task> workItem, CancellationToken cancellationToken = default)
     {
-        int count = await _informationUtil.IncrementTaskCounter().ConfigureAwait(false);
+        int count = await _informationUtil.IncrementTaskCounter(cancellationToken).NoSync();
 
         if (count > _queueWarning)
         {
@@ -86,15 +87,15 @@ public class BackgroundQueue : IBackgroundQueue
         if (_log)
             _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
 
-        await _taskChannel.Writer.WriteAsync(workItem).ConfigureAwait(false);
+        await _taskChannel.Writer.WriteAsync(workItem, cancellationToken).NoSync();
     }
 
-    public ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken)
+    public ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken = default)
     {
         return _valueTaskChannel.Reader.ReadAsync(cancellationToken);
     }
 
-    public ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken)
+    public ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken = default)
     {
         return _taskChannel.Reader.ReadAsync(cancellationToken);
     }

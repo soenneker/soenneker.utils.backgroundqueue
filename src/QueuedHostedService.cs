@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.MethodInfo;
+using Soenneker.Extensions.Task;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue;
@@ -62,7 +64,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             {
                 string? workItemName = null;
 
-                workItem = await _queue.DequeueTask(stoppingToken).ConfigureAwait(false);
+                workItem = await _queue.DequeueTask(stoppingToken).NoSync();
 
                 if (_log)
                 {
@@ -70,7 +72,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
                     _logger.LogDebug("~~ QueuedHostedService: Starting Task: {item}", workItemName);
                 }
 
-                await workItem(stoppingToken).ConfigureAwait(false);
+                await workItem(stoppingToken).NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed Task: {item}", workItemName);
@@ -81,7 +83,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                await _queueInformationUtil.DecrementTaskCounter().ConfigureAwait(false);
+                await _queueInformationUtil.DecrementTaskCounter(stoppingToken).NoSync();
             }
         }
     }
@@ -96,7 +98,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             {
                 string? workItemName = null;
 
-                workItem = await _queue.DequeueValueTask(stoppingToken).ConfigureAwait(false);
+                workItem = await _queue.DequeueValueTask(stoppingToken).NoSync();
 
                 if (_log)
                 {
@@ -104,7 +106,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
                     _logger.LogDebug("~~ QueuedHostedService: Starting ValueTask: {item}", workItemName);
                 }
 
-                await workItem(stoppingToken).ConfigureAwait(false);
+                await workItem(stoppingToken).NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed ValueTask: {item}", workItemName);
@@ -115,7 +117,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                await _queueInformationUtil.DecrementValueTaskCounter().ConfigureAwait(false);
+                await _queueInformationUtil.DecrementValueTaskCounter(stoppingToken).NoSync();
             }
         }
     }

@@ -24,18 +24,18 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             _asyncLock = new AsyncLock();
     }
 
-    public async ValueTask<(int TaskLength, int ValueTaskLength)> GetCountsOfProcessing()
+    public async ValueTask<(int TaskLength, int ValueTaskLength)> GetCountsOfProcessing(CancellationToken cancellationToken = default)
     {
         if (!_lockCounts)
             return (_taskCount, _valueTaskCount);
 
-        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
+        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
         {
             return (_taskCount, _valueTaskCount);
         }
     }
 
-    public async ValueTask<bool> IsProcessing()
+    public async ValueTask<bool> IsProcessing(CancellationToken cancellationToken = default)
     {
         if (!_lockCounts)
         {
@@ -45,7 +45,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return false;
         }
 
-        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
+        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
         {
             if (_valueTaskCount > 0 || _taskCount > 0)
                 return true;
@@ -54,7 +54,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
         }
     }
 
-    public async ValueTask<int> IncrementValueTaskCounter()
+    public async ValueTask<int> IncrementValueTaskCounter(CancellationToken cancellationToken = default)
     {
         if (!_lockCounts)
         {
@@ -63,7 +63,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _valueTaskCount;
         }
 
-        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
+        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
         {
             _valueTaskCount++;
 
@@ -71,7 +71,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
         }
     }
 
-    public async ValueTask<int> DecrementValueTaskCounter()
+    public async ValueTask<int> DecrementValueTaskCounter(CancellationToken cancellationToken = default)
     {
         if (!_lockCounts)
         {
@@ -80,7 +80,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _valueTaskCount;
         }
 
-        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
+        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
         {
             _valueTaskCount--;
 
@@ -88,7 +88,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
         }
     }
 
-    public async ValueTask<int> IncrementTaskCounter()
+    public async ValueTask<int> IncrementTaskCounter(CancellationToken cancellationToken = default)
     {
         if (!_lockCounts)
         {
@@ -97,7 +97,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _taskCount;
         }
 
-        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
+        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
         {
             _taskCount++;
 
@@ -105,7 +105,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
         }
     }
 
-    public async ValueTask<int> DecrementTaskCounter()
+    public async ValueTask<int> DecrementTaskCounter(CancellationToken cancellationToken = default)
     {
         if (!_lockCounts)
         {
@@ -113,7 +113,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             return _taskCount;
         }
 
-        using (await _asyncLock!.LockAsync().ConfigureAwait(false))
+        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
         {
             _taskCount--;
 

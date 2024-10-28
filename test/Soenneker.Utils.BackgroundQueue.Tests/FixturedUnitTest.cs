@@ -7,6 +7,7 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using Serilog.Sinks.XUnit.Injectable.Abstract;
 using Soenneker.Extensions.ServiceProvider;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Tests.Logging;
 using Soenneker.Tests.Unit;
 using Soenneker.Utils.BackgroundQueue.Abstract;
@@ -77,7 +78,7 @@ public class FixturedUnitTest : UnitTest, IFixturedUnitTest
 
         do
         {
-            isProcessing = await _queueInformationUtil.Value.IsProcessing().ConfigureAwait(false);
+            isProcessing = await _queueInformationUtil.Value.IsProcessing().NoSync();
 
             if (isProcessing)
             {
@@ -100,6 +101,6 @@ public class FixturedUnitTest : UnitTest, IFixturedUnitTest
         GC.SuppressFinalize(this);
 
         if (Scope != null)
-            await Scope.Value.DisposeAsync().ConfigureAwait(false);
+            await Scope.Value.DisposeAsync().NoSync();
     }
 }

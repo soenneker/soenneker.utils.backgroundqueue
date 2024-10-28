@@ -5,6 +5,7 @@ using Serilog;
 using Serilog.Sinks.XUnit.Injectable;
 using Serilog.Sinks.XUnit.Injectable.Abstract;
 using Serilog.Sinks.XUnit.Injectable.Extensions;
+using Soenneker.Extensions.ValueTask;
 using Xunit;
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
@@ -49,6 +50,6 @@ public abstract class UnitFixture : IAsyncLifetime
         GC.SuppressFinalize(this);
 
         if (ServiceProvider != null)
-            await ServiceProvider.DisposeAsync().ConfigureAwait(false);
+            await ServiceProvider.DisposeAsync().NoSync();
     }
 }
