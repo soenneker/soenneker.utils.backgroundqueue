@@ -60,7 +60,7 @@ public class BackgroundQueue : IBackgroundQueue
     {
         // TODO: need to redo this, we're going to get too many warnings
 
-        int count = await _informationUtil.IncrementValueTaskCounter(cancellationToken).ConfigureAwait(false);
+        int count = await _informationUtil.IncrementValueTaskCounter(cancellationToken).NoSync();
 
         if (count > _queueWarning)
         {
