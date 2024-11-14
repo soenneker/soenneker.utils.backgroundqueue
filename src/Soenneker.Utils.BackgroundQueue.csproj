@@ -42,6 +42,6 @@
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="2.1.482" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="2.1.361" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="3.0.320" />
-        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="2.1.51" />
+        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="3.0.52" />
     </ItemGroup>
 </Project>
