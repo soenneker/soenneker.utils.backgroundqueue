@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,8 @@ using Soenneker.Tests.Logging;
 using Soenneker.Tests.Unit;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 using Soenneker.Utils.BackgroundQueue.Tests.Abstract;
-using Xunit.Abstractions;
+using Xunit;
+
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
@@ -91,12 +92,12 @@ public class FixturedUnitTest : UnitTest, IFixturedUnitTest
         } while (isProcessing);
     }
 
-    public Task InitializeAsync()
+    public ValueTask InitializeAsync()
     {
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
 

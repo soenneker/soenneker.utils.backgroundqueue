@@ -28,8 +28,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Tests.Unit" Version="3.0.525" />
-    </ItemGroup>
+        <PackageReference Include="Soenneker.Tests.Unit" Version="3.0.534" />
+    <PackageReference Include="xUnit.v3" Version="1.0.0" /></ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Utils.BackgroundQueue.csproj" />

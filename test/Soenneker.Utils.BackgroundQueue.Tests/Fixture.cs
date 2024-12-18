@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,7 +13,7 @@ namespace Soenneker.Utils.BackgroundQueue.Tests;
 
 public class Fixture : UnitFixture
 {
-    public override async Task InitializeAsync()
+    public override async ValueTask InitializeAsync()
     {
         SetupIoC(Services);
 
@@ -33,7 +33,7 @@ public class Fixture : UnitFixture
         services.AddBackgroundQueue();
     }
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if (ServiceProvider != null)
             await ServiceProvider.StopBackgroundQueue().NoSync();
