@@ -41,7 +41,7 @@
         <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="3.0.577" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="3.0.424" />
-        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="3.0.325" />
+        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="3.0.326" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="3.0.69" />
     </ItemGroup>
 </Project>
