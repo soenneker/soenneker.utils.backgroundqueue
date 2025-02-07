@@ -18,9 +18,9 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="3.0.273" />
-        <PackageReference Include="Soenneker.Utils.Test" Version="3.0.267" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1">
+        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="3.0.275" />
+        <PackageReference Include="Soenneker.Utils.Test" Version="3.0.269" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -28,8 +28,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Tests.Unit" Version="3.0.691" />
-    <PackageReference Include="xUnit.v3" Version="1.0.1" /></ItemGroup>
+        <PackageReference Include="Soenneker.Tests.Unit" Version="3.0.697" />
+    <PackageReference Include="xUnit.v3" Version="1.1.0" /></ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Utils.BackgroundQueue.csproj" />

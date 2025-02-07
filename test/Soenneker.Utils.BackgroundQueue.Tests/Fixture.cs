@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,11 +31,13 @@ public class Fixture : UnitFixture
         services.TryAdd(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(Logger<>)));
 
         services.AddSingleton(config);
-        services.AddBackgroundQueue();
+        services.AddBackgroundQueueAsSingleton();
     }
 
     public override async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
+
         if (ServiceProvider != null)
             await ServiceProvider.StopBackgroundQueue().NoSync();
 
