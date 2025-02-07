@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Soenneker.Tests.Unit;
 using Xunit;
 
@@ -25,5 +26,5 @@ public interface IFixturedUnitTest : IAsyncLifetime
     /// <summary>
     /// Checks the background queue to see if it's empty, and loops until it is
     /// </summary>
-    ValueTask WaitOnQueueToEmpty();
+    ValueTask WaitOnQueueToEmpty(CancellationToken cancellationToken = default);
 }

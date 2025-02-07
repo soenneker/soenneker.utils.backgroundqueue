@@ -71,7 +71,7 @@ public class FixturedUnitTest : UnitTest, IFixturedUnitTest
         Scope = Fixture.ServiceProvider.CreateAsyncScope();
     }
     
-    public async ValueTask WaitOnQueueToEmpty()
+    public async ValueTask WaitOnQueueToEmpty(CancellationToken cancellationToken = default)
     {
         const int delayMs = 500;
 
@@ -79,7 +79,7 @@ public class FixturedUnitTest : UnitTest, IFixturedUnitTest
 
         do
         {
-            isProcessing = await _queueInformationUtil.Value.IsProcessing().NoSync();
+            isProcessing = await _queueInformationUtil.Value.IsProcessing(cancellationToken).NoSync();
 
             if (isProcessing)
             {

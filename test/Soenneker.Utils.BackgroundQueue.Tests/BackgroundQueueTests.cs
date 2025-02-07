@@ -28,20 +28,20 @@ public class BackgroundQueueTests : FixturedUnitTest
     [Fact]
     public async Task WaitOnQueueToEmpty_should_complete_with_Task()
     {
-        await _util.QueueTask(_ => TestTask());
+        await _util.QueueTask(_ => TestTask(), CancellationToken);
 
-        await WaitOnQueueToEmpty();
+        await WaitOnQueueToEmpty(CancellationToken);
 
-        await Task.Delay(500);
+        await Task.Delay(500, CancellationToken);
     }
 
     [Fact]
     public async Task WaitOnQueueToEmpty_should_complete_with_ValueTask()
     {
-        await _util.QueueValueTask(_ => TestValueTask());
+        await _util.QueueValueTask(_ => TestValueTask(), CancellationToken);
 
-        await WaitOnQueueToEmpty();
+        await WaitOnQueueToEmpty(CancellationToken);
 
-        await Task.Delay(500);
+        await Task.Delay(500, CancellationToken);
     }
 }
