@@ -43,20 +43,20 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
     /// <summary>
     /// Triggered when the application host is ready to start the service.
     /// </summary>
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken cancellationToken)
     {
         if (_log)
             _logger.LogDebug("~~ QueuedHostedService: Executing...");
 
-        Task valueTaskProcessing = ValueTaskProcessing(stoppingToken);
-        Task taskProcessing = TaskProcessing(stoppingToken);
+        Task valueTaskProcessing = ValueTaskProcessing(cancellationToken);
+        Task taskProcessing = TaskProcessing(cancellationToken);
 
         return Task.WhenAll(valueTaskProcessing, taskProcessing);
     }
 
-    private async Task TaskProcessing(CancellationToken stoppingToken)
+    private async Task TaskProcessing(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             Func<CancellationToken, Task>? workItem = null;
 
@@ -64,7 +64,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             {
                 string? workItemName = null;
 
-                workItem = await _queue.DequeueTask(stoppingToken).NoSync();
+                workItem = await _queue.DequeueTask(cancellationToken).NoSync();
 
                 if (_log)
                 {
@@ -72,7 +72,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
                     _logger.LogDebug("~~ QueuedHostedService: Starting Task: {item}", workItemName);
                 }
 
-                await workItem(stoppingToken).NoSync();
+                await workItem(cancellationToken).NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed Task: {item}", workItemName);
@@ -83,14 +83,14 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                await _queueInformationUtil.DecrementTaskCounter(stoppingToken).NoSync();
+                await _queueInformationUtil.DecrementTaskCounter(cancellationToken).NoSync();
             }
         }
     }
 
-    private async Task ValueTaskProcessing(CancellationToken stoppingToken)
+    private async Task ValueTaskProcessing(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             Func<CancellationToken, ValueTask>? workItem = null;
 
@@ -98,7 +98,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             {
                 string? workItemName = null;
 
-                workItem = await _queue.DequeueValueTask(stoppingToken).NoSync();
+                workItem = await _queue.DequeueValueTask(cancellationToken).NoSync();
 
                 if (_log)
                 {
@@ -106,7 +106,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
                     _logger.LogDebug("~~ QueuedHostedService: Starting ValueTask: {item}", workItemName);
                 }
 
-                await workItem(stoppingToken).NoSync();
+                await workItem(cancellationToken).NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed ValueTask: {item}", workItemName);
@@ -117,7 +117,7 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
             }
             finally
             {
-                await _queueInformationUtil.DecrementValueTaskCounter(stoppingToken).NoSync();
+                await _queueInformationUtil.DecrementValueTaskCounter(cancellationToken).NoSync();
             }
         }
     }

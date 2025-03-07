@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.Double;
 using Soenneker.Extensions.MethodInfo;
+using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
@@ -21,14 +22,14 @@ public class BackgroundQueue : IBackgroundQueue
     private readonly int _queueWarning;
 
     private readonly ILogger<BackgroundQueue> _logger;
-    private readonly IQueueInformationUtil _informationUtil;
+    private readonly IQueueInformationUtil _queueInformationUtil;
 
     private readonly bool _log;
 
-    public BackgroundQueue(IConfiguration config, ILogger<BackgroundQueue> logger, IQueueInformationUtil informationUtil)
+    public BackgroundQueue(IConfiguration config, ILogger<BackgroundQueue> logger, IQueueInformationUtil queueInformationUtil)
     {
         _logger = logger;
-        _informationUtil = informationUtil;
+        _queueInformationUtil = queueInformationUtil;
 
         var configQueueLength = config.GetValue<int>("Background:QueueLength");
         _log = config.GetValue<bool>("Background:Log");
@@ -60,7 +61,7 @@ public class BackgroundQueue : IBackgroundQueue
     {
         // TODO: need to redo this, we're going to get too many warnings
 
-        int count = await _informationUtil.IncrementValueTaskCounter(cancellationToken).NoSync();
+        int count = await _queueInformationUtil.IncrementValueTaskCounter(cancellationToken).NoSync();
 
         if (count > _queueWarning)
         {
@@ -76,7 +77,7 @@ public class BackgroundQueue : IBackgroundQueue
 
     public async ValueTask QueueTask(Func<CancellationToken, Task> workItem, CancellationToken cancellationToken = default)
     {
-        int count = await _informationUtil.IncrementTaskCounter(cancellationToken).NoSync();
+        int count = await _queueInformationUtil.IncrementTaskCounter(cancellationToken).NoSync();
 
         if (count > _queueWarning)
         {
@@ -98,5 +99,31 @@ public class BackgroundQueue : IBackgroundQueue
     public ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken = default)
     {
         return _taskChannel.Reader.ReadAsync(cancellationToken);
+    }
+
+    public async ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default)
+    {
+        const int delayMs = 500;
+
+        bool isProcessing;
+
+        do
+        {
+            isProcessing = await _queueInformationUtil.IsProcessing(cancellationToken).ConfigureAwait(false);
+
+            if (isProcessing)
+            {
+                if (_log)
+                {
+                    _logger.LogDebug("Delaying for {ms}ms (Background queue emptying...)...", delayMs);
+                }
+
+                await Task.Delay(delayMs, cancellationToken).NoSync();
+            }
+            else
+            {
+                _logger.LogDebug("Background queue is empty; continuing");
+            }
+        } while (isProcessing);
     }
 }

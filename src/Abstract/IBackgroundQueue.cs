@@ -41,4 +41,6 @@ public interface IBackgroundQueue
     /// <param name="cancellationToken">An optional token to cancel the operation.</param>
     /// <returns>A <see cref="ValueTask"/> containing a function that represents the dequeued work item, which accepts a <see cref="CancellationToken"/> and returns a <see cref="Task"/>.</returns>
     ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken = default);
+
+    ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default);
 }
