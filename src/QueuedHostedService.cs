@@ -77,6 +77,12 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed Task: {item}", workItemName);
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // Ignore cancellation exception during shutdown if no task was being processed
+                if (workItem != null)
+                    _logger.LogError("~~ QueuedHostedService: Task was cancelled while executing!: {item}", workItem?.Method.GetSignature());
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "~~ QueuedHostedService:: Error executing Task: {item}", workItem?.Method.GetSignature());
@@ -110,6 +116,12 @@ public class QueuedHostedService : BackgroundService, IQueuedHostedService
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed ValueTask: {item}", workItemName);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // Ignore cancellation exception during shutdown if no ValueTask was being processed
+                if (workItem != null)
+                    _logger.LogError("~~ QueuedHostedService: ValueTask was cancelled while executing!: {item}", workItem?.Method.GetSignature());
             }
             catch (Exception ex)
             {
