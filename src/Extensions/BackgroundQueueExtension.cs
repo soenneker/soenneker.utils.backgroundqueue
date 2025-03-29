@@ -60,7 +60,7 @@ public static class BackgroundQueueExtension
         if (queuedHostedService == null)
             return;
 
-        queuedHostedService.StopAsync(cancellationToken).NoSync().GetAwaiter().GetResult();
+        queuedHostedService.StopAsync(cancellationToken).AwaitSync();
         queuedHostedService.Dispose();
     }
 
