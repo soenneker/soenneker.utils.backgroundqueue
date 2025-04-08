@@ -6,9 +6,8 @@ on:
 
     tags:
       - v*
-    paths:
-      - 'src/Soenneker.Utils.BackgroundQueue/**'
-      - '.github/workflows/publish-package.yml'
+    paths-ignore:
+      - 'test/**'
 
 env:
     "PipelineEnvironment": true
