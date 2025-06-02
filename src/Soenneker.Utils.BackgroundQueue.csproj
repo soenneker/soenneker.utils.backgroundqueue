@@ -38,7 +38,7 @@
         <None Include="..\icon.png" Pack="true" PackagePath="\" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.5" />
         <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
-        <PackageReference Include="Soenneker.Extensions.Configuration" Version="3.0.696" />
+        <PackageReference Include="Soenneker.Extensions.Configuration" Version="3.0.697" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="3.0.442" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="3.0.345" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="3.0.102" />
