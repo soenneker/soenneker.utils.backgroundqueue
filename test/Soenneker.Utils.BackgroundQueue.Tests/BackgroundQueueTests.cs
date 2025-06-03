@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Soenneker.Utils.BackgroundQueue.Abstract;
+using Soenneker.Utils.Delay;
 using Xunit;
-
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
@@ -32,7 +32,7 @@ public class BackgroundQueueTests : FixturedUnitTest
 
         await WaitOnQueueToEmpty(CancellationToken);
 
-        await Task.Delay(500, CancellationToken);
+        await DelayUtil.Delay(500, null, CancellationToken);
     }
 
     [Fact]
@@ -42,6 +42,6 @@ public class BackgroundQueueTests : FixturedUnitTest
 
         await WaitOnQueueToEmpty(CancellationToken);
 
-        await Task.Delay(500, CancellationToken);
+        await DelayUtil.Delay(500, null, CancellationToken);
     }
 }

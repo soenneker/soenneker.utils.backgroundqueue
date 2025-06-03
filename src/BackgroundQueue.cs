@@ -9,6 +9,7 @@ using Soenneker.Extensions.MethodInfo;
 using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
+using Soenneker.Utils.Delay;
 
 namespace Soenneker.Utils.BackgroundQueue;
 
@@ -115,10 +116,10 @@ public class BackgroundQueue : IBackgroundQueue
             {
                 if (_log)
                 {
-                    _logger.LogDebug("Delaying for {ms}ms (Background queue emptying...)...", delayMs);
+                    _logger.LogDebug("Delaying for {ms}ms (Background queue emptying)...", delayMs);
                 }
 
-                await Task.Delay(delayMs, cancellationToken).NoSync();
+                await DelayUtil.Delay(delayMs, null, cancellationToken).NoSync();
             }
             else
             {
