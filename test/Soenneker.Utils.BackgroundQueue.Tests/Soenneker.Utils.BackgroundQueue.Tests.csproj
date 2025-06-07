@@ -29,7 +29,7 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Soenneker.Tests.Unit" Version="3.0.840" />
-    <PackageReference Include="xUnit.v3" Version="2.0.2" /></ItemGroup>
+    <PackageReference Include="xUnit.v3" Version="2.0.3" /></ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Utils.BackgroundQueue.csproj" />
