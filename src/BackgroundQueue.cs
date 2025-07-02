@@ -14,7 +14,7 @@ using Soenneker.Utils.Delay;
 namespace Soenneker.Utils.BackgroundQueue;
 
 /// <inheritdoc cref="IBackgroundQueue"/>
-public class BackgroundQueue : IBackgroundQueue
+public sealed class BackgroundQueue : IBackgroundQueue
 {
     private readonly Channel<Func<CancellationToken, ValueTask>> _valueTaskChannel;
     private readonly Channel<Func<CancellationToken, Task>> _taskChannel;

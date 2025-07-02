@@ -12,7 +12,7 @@ using Soenneker.Utils.BackgroundQueue.Abstract;
 namespace Soenneker.Utils.BackgroundQueue;
 
 /// <inheritdoc cref="IQueuedHostedService"/>
-public class QueuedHostedService : BackgroundService, IQueuedHostedService
+public sealed class QueuedHostedService : BackgroundService, IQueuedHostedService
 {
     private readonly IBackgroundQueue _queue;
     private readonly ILogger<QueuedHostedService> _logger;
