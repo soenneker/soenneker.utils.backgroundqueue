@@ -43,6 +43,6 @@
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="3.0.348" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="3.0.105" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="3.0.95" />
-        <PackageReference Include="Soenneker.Utils.Delay" Version="3.0.27" />
+        <PackageReference Include="Soenneker.Utils.Delay" Version="3.0.29" />
     </ItemGroup>
 </Project>
