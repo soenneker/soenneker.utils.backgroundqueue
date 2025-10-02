@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
         <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="3.0.298" />
         <PackageReference Include="Soenneker.Utils.Test" Version="3.0.293" />
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
