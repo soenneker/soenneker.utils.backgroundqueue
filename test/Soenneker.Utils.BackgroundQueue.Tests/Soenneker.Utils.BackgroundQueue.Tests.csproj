@@ -18,7 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
-        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.301" />
+        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.302" />
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.296" />
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
