@@ -1,123 +1,69 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Nito.AsyncEx;
+using Soenneker.Atomics.ValueInts;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue;
 
-///<inheritdoc cref="IQueueInformationUtil"/>
+/// <inheritdoc cref="IQueueInformationUtil"/>
 public sealed class QueueInformationUtil : IQueueInformationUtil
 {
-    private readonly bool _lockCounts;
+    private readonly bool _trackCounts;
 
-    private readonly AsyncLock? _asyncLock;
-
-    private int _taskCount;
-    private int _valueTaskCount;
+    private ValueAtomicInt _taskCount;
+    private ValueAtomicInt _valueTaskCount;
 
     public QueueInformationUtil(IConfiguration config)
     {
-        _lockCounts = config.GetValue<bool>("Background:LockCounts");
-
-        if (_lockCounts)
-            _asyncLock = new AsyncLock();
+        _trackCounts = config.GetValue<bool>("Background:LockCounts");
     }
 
-    public async ValueTask<(int TaskLength, int ValueTaskLength)> GetCountsOfProcessing(CancellationToken cancellationToken = default)
+    public ValueTask<(int TaskLength, int ValueTaskLength)> GetCountsOfProcessing(CancellationToken cancellationToken = default)
     {
-        if (!_lockCounts)
-            return (_taskCount, _valueTaskCount);
+        if (!_trackCounts)
+            return ValueTask.FromResult((0, 0));
 
-        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
-        {
-            return (_taskCount, _valueTaskCount);
-        }
+        return ValueTask.FromResult((_taskCount.Value, _valueTaskCount.Value));
     }
 
-    public async ValueTask<bool> IsProcessing(CancellationToken cancellationToken = default)
+    public ValueTask<bool> IsProcessing(CancellationToken cancellationToken = default)
     {
-        if (!_lockCounts)
-        {
-            if (_valueTaskCount > 0 || _taskCount > 0)
-                return true;
+        if (!_trackCounts)
+            return ValueTask.FromResult(false);
 
-            return false;
-        }
-
-        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
-        {
-            if (_valueTaskCount > 0 || _taskCount > 0)
-                return true;
-
-            return false;
-        }
+        return ValueTask.FromResult(_taskCount.Value > 0 || _valueTaskCount.Value > 0);
     }
 
-    public async ValueTask<int> IncrementValueTaskCounter(CancellationToken cancellationToken = default)
+    public ValueTask<int> IncrementValueTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_lockCounts)
-        {
-            Interlocked.Increment(ref _valueTaskCount);
+        if (!_trackCounts)
+            return ValueTask.FromResult(0);
 
-            return _valueTaskCount;
-        }
-
-        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
-        {
-            _valueTaskCount++;
-
-            return _valueTaskCount;
-        }
+        return ValueTask.FromResult(_valueTaskCount.Increment());
     }
 
-    public async ValueTask<int> DecrementValueTaskCounter(CancellationToken cancellationToken = default)
+    public ValueTask<int> DecrementValueTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_lockCounts)
-        {
-            Interlocked.Decrement(ref _valueTaskCount);
+        if (!_trackCounts)
+            return ValueTask.FromResult(0);
 
-            return _valueTaskCount;
-        }
-
-        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
-        {
-            _valueTaskCount--;
-
-            return _valueTaskCount;
-        }
+        return ValueTask.FromResult(_valueTaskCount.Decrement());
     }
 
-    public async ValueTask<int> IncrementTaskCounter(CancellationToken cancellationToken = default)
+    public ValueTask<int> IncrementTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_lockCounts)
-        {
-            Interlocked.Increment(ref _taskCount);
+        if (!_trackCounts)
+            return ValueTask.FromResult(0);
 
-            return _taskCount;
-        }
-
-        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
-        {
-            _taskCount++;
-
-            return _taskCount;
-        }
+        return ValueTask.FromResult(_taskCount.Increment());
     }
 
-    public async ValueTask<int> DecrementTaskCounter(CancellationToken cancellationToken = default)
+    public ValueTask<int> DecrementTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_lockCounts)
-        {
-            Interlocked.Decrement(ref _taskCount);
-            return _taskCount;
-        }
+        if (!_trackCounts)
+            return ValueTask.FromResult(0);
 
-        using (await _asyncLock!.LockAsync(cancellationToken).ConfigureAwait(false))
-        {
-            _taskCount--;
-
-            return _taskCount;
-        }
+        return ValueTask.FromResult(_taskCount.Decrement());
     }
 }

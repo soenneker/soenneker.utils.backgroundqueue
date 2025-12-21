@@ -89,7 +89,8 @@ public sealed class QueuedHostedService : BackgroundService, IQueuedHostedServic
             }
             finally
             {
-                await _queueInformationUtil.DecrementTaskCounter(cancellationToken).NoSync();
+                if (workItem != null)
+                    await _queueInformationUtil.DecrementTaskCounter(CancellationToken.None).NoSync();
             }
         }
     }
@@ -129,7 +130,8 @@ public sealed class QueuedHostedService : BackgroundService, IQueuedHostedServic
             }
             finally
             {
-                await _queueInformationUtil.DecrementValueTaskCounter(cancellationToken).NoSync();
+                if (workItem != null)
+                    await _queueInformationUtil.DecrementValueTaskCounter(CancellationToken.None).NoSync();
             }
         }
     }

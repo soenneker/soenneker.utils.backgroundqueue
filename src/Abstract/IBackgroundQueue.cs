@@ -42,5 +42,10 @@ public interface IBackgroundQueue
     /// <returns>A <see cref="ValueTask"/> containing a function that represents the dequeued work item, which accepts a <see cref="CancellationToken"/> and returns a <see cref="Task"/>.</returns>
     ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// This is really wait until both queues are empty and their work is done, not just are the queues empty.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default);
 }
