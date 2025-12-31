@@ -9,6 +9,7 @@ using Soenneker.Extensions.MethodInfo;
 using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
+using Soenneker.Utils.BackgroundQueue.Dtos;
 using Soenneker.Utils.Delay;
 
 namespace Soenneker.Utils.BackgroundQueue;
@@ -16,8 +17,12 @@ namespace Soenneker.Utils.BackgroundQueue;
 /// <inheritdoc cref="IBackgroundQueue"/>
 public sealed class BackgroundQueue : IBackgroundQueue
 {
-    private readonly Channel<Func<CancellationToken, ValueTask>> _valueTaskChannel;
-    private readonly Channel<Func<CancellationToken, Task>> _taskChannel;
+    public delegate ValueTask ValueTaskWorkItem<in TState>(TState state, CancellationToken ct);
+
+    public delegate Task TaskWorkItem<in TState>(TState state, CancellationToken ct);
+
+    private readonly Channel<ValueTaskEnvelope> _valueTaskChannel;
+    private readonly Channel<TaskEnvelope> _taskChannel;
 
     private readonly int _queueLimit;
     private readonly int _queueWarning;
@@ -59,20 +64,21 @@ public sealed class BackgroundQueue : IBackgroundQueue
             AllowSynchronousContinuations = false
         };
 
-        _valueTaskChannel = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
-        _taskChannel = Channel.CreateBounded<Func<CancellationToken, Task>>(options);
+        _valueTaskChannel = Channel.CreateBounded<ValueTaskEnvelope>(options);
+        _taskChannel = Channel.CreateBounded<TaskEnvelope>(options);
     }
 
     public async ValueTask QueueValueTask(Func<CancellationToken, ValueTask> workItem, CancellationToken cancellationToken = default)
     {
-        // TODO: need to redo this, we're going to get too many warnings
-
         int count = await _queueInformationUtil.IncrementValueTaskCounter(cancellationToken)
                                                .NoSync();
 
         try
         {
-            await _valueTaskChannel.Writer.WriteAsync(workItem, cancellationToken)
+            // Store the user delegate as state; invoke via a static callback (no closure here)
+            var env = new ValueTaskEnvelope(static (s, ct) => ((Func<CancellationToken, ValueTask>)s!).Invoke(ct), workItem);
+
+            await _valueTaskChannel.Writer.WriteAsync(env, cancellationToken)
                                    .NoSync();
         }
         catch
@@ -85,8 +91,8 @@ public sealed class BackgroundQueue : IBackgroundQueue
         if (count > _queueWarning && ShouldWarn())
         {
             _logger.LogWarning(
-                "ValueTask queue length ({length}) is currently greater than the warning ({_queueWarning}), and will wait after hitting limit ({_queueLimit})",
-                count, _queueWarning, _queueLimit);
+                "ValueTask queue length ({length}) is currently greater than the warning ({warning}), and will wait after hitting limit ({limit})", count,
+                _queueWarning, _queueLimit);
         }
 
         if (_log)
@@ -100,7 +106,9 @@ public sealed class BackgroundQueue : IBackgroundQueue
 
         try
         {
-            await _taskChannel.Writer.WriteAsync(workItem, cancellationToken)
+            var env = new TaskEnvelope(static (s, ct) => ((Func<CancellationToken, Task>)s!).Invoke(ct), workItem);
+
+            await _taskChannel.Writer.WriteAsync(env, cancellationToken)
                               .NoSync();
         }
         catch
@@ -112,8 +120,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
 
         if (count > _queueWarning && ShouldWarn())
         {
-            _logger.LogWarning(
-                "Task queue length ({length}) is currently greater than the warning ({_queueWarning}), and will wait after hitting limit ({_queueLimit})",
+            _logger.LogWarning("Task queue length ({length}) is currently greater than the warning ({warning}), and will wait after hitting limit ({limit})",
                 count, _queueWarning, _queueLimit);
         }
 
@@ -121,15 +128,78 @@ public sealed class BackgroundQueue : IBackgroundQueue
             _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
     }
 
-    public ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken = default)
+    public async ValueTask QueueValueTask<TState>(TState state, ValueTaskWorkItem<TState> workItem, CancellationToken cancellationToken = default)
     {
-        return _valueTaskChannel.Reader.ReadAsync(cancellationToken);
+        int count = await _queueInformationUtil.IncrementValueTaskCounter(cancellationToken)
+                                               .NoSync();
+
+        try
+        {
+            // Pack BOTH delegate + state into the envelope state
+            var env = new ValueTaskEnvelope(static (s, ct) =>
+            {
+                var payload = ((ValueTaskWorkItem<TState> work, TState st))s!;
+                return payload.work(payload.st, ct);
+            }, (workItem, state));
+
+            await _valueTaskChannel.Writer.WriteAsync(env, cancellationToken)
+                                   .NoSync();
+        }
+        catch
+        {
+            await _queueInformationUtil.DecrementValueTaskCounter(CancellationToken.None)
+                                       .NoSync();
+            throw;
+        }
+
+        if (count > _queueWarning && ShouldWarn())
+        {
+            _logger.LogWarning(
+                "ValueTask queue length ({length}) is currently greater than the warning ({warning}), and will wait after hitting limit ({limit})", count,
+                _queueWarning, _queueLimit);
+        }
+
+        if (_log)
+            _logger.LogDebug("Queuing ValueTask: {name}", workItem.Method.GetSignature());
     }
 
-    public ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken = default)
+    public async ValueTask QueueTask<TState>(TState state, TaskWorkItem<TState> workItem, CancellationToken cancellationToken = default)
     {
-        return _taskChannel.Reader.ReadAsync(cancellationToken);
+        int count = await _queueInformationUtil.IncrementTaskCounter(cancellationToken)
+                                               .NoSync();
+
+        try
+        {
+            var env = new TaskEnvelope(static (s, ct) =>
+            {
+                var payload = ((TaskWorkItem<TState> work, TState st))s!;
+                return payload.work(payload.st, ct);
+            }, (workItem, state));
+
+            await _taskChannel.Writer.WriteAsync(env, cancellationToken)
+                              .NoSync();
+        }
+        catch
+        {
+            await _queueInformationUtil.DecrementTaskCounter(CancellationToken.None)
+                                       .NoSync();
+            throw;
+        }
+
+        if (count > _queueWarning && ShouldWarn())
+        {
+            _logger.LogWarning("Task queue length ({length}) is currently greater than the warning ({warning}), and will wait after hitting limit ({limit})",
+                count, _queueWarning, _queueLimit);
+        }
+
+        if (_log)
+            _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
     }
+
+    public ValueTask<ValueTaskEnvelope> DequeueValueTask(CancellationToken cancellationToken = default) =>
+        _valueTaskChannel.Reader.ReadAsync(cancellationToken);
+
+    public ValueTask<TaskEnvelope> DequeueTask(CancellationToken cancellationToken = default) => _taskChannel.Reader.ReadAsync(cancellationToken);
 
     public async ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default)
     {
@@ -145,9 +215,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
             if (isProcessing)
             {
                 if (_log)
-                {
                     _logger.LogDebug("Delaying for {ms}ms (Background queue emptying)...", delayMs);
-                }
 
                 await DelayUtil.Delay(delayMs, null, cancellationToken)
                                .NoSync();

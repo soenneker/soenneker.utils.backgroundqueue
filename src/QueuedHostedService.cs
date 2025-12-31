@@ -8,6 +8,7 @@ using Soenneker.Extensions.MethodInfo;
 using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
+using Soenneker.Utils.BackgroundQueue.Dtos;
 
 namespace Soenneker.Utils.BackgroundQueue;
 
@@ -58,39 +59,48 @@ public sealed class QueuedHostedService : BackgroundService, IQueuedHostedServic
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            Func<CancellationToken, Task>? workItem = null;
+            var dequeued = false;
+
+            string? workItemName = null;
 
             try
             {
-                string? workItemName = null;
-
-                workItem = await _queue.DequeueTask(cancellationToken).NoSync();
+                TaskEnvelope env = await _queue.DequeueTask(cancellationToken)
+                                               .NoSync();
+                dequeued = true;
 
                 if (_log)
                 {
-                    workItemName = workItem.Method.GetSignature();
+                    // If you stored a Func<> as state for legacy calls, you can still get a name:
+                    if (env.State is Func<CancellationToken, Task> legacy)
+                        workItemName = legacy.Method.GetSignature();
+                    else
+                        workItemName = env.Callback.Method.GetSignature();
+
                     _logger.LogDebug("~~ QueuedHostedService: Starting Task: {item}", workItemName);
                 }
 
-                await workItem(cancellationToken).NoSync();
+                await env.Invoke(cancellationToken)
+                         .NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed Task: {item}", workItemName);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                // Ignore cancellation exception during shutdown if no task was being processed
-                if (workItem != null)
-                    _logger.LogError("~~ QueuedHostedService: Task was cancelled while executing!: {item}", workItem?.Method.GetSignature());
+                // Ignore cancellation during shutdown if no item was dequeued
+                if (dequeued)
+                    _logger.LogError("~~ QueuedHostedService: Task was cancelled while executing!: {item}", workItemName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "~~ QueuedHostedService:: Error executing Task: {item}", workItem?.Method.GetSignature());
+                _logger.LogError(ex, "~~ QueuedHostedService:: Error executing Task: {item}", workItemName);
             }
             finally
             {
-                if (workItem != null)
-                    await _queueInformationUtil.DecrementTaskCounter(CancellationToken.None).NoSync();
+                if (dequeued)
+                    await _queueInformationUtil.DecrementTaskCounter(CancellationToken.None)
+                                               .NoSync();
             }
         }
     }
@@ -99,39 +109,47 @@ public sealed class QueuedHostedService : BackgroundService, IQueuedHostedServic
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            Func<CancellationToken, ValueTask>? workItem = null;
+            var dequeued = false;
+
+            string? workItemName = null;
 
             try
             {
-                string? workItemName = null;
-
-                workItem = await _queue.DequeueValueTask(cancellationToken).NoSync();
+                ValueTaskEnvelope env = await _queue.DequeueValueTask(cancellationToken)
+                                                    .NoSync();
+                dequeued = true;
 
                 if (_log)
                 {
-                    workItemName = workItem.Method.GetSignature();
+                    if (env.State is Func<CancellationToken, ValueTask> legacy)
+                        workItemName = legacy.Method.GetSignature();
+                    else
+                        workItemName = env.Callback.Method.GetSignature();
+
                     _logger.LogDebug("~~ QueuedHostedService: Starting ValueTask: {item}", workItemName);
                 }
 
-                await workItem(cancellationToken).NoSync();
+                await env.Invoke(cancellationToken)
+                         .NoSync();
 
                 if (_log)
                     _logger.LogDebug("~~ QueuedHostedService: Completed ValueTask: {item}", workItemName);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                // Ignore cancellation exception during shutdown if no ValueTask was being processed
-                if (workItem != null)
-                    _logger.LogError("~~ QueuedHostedService: ValueTask was cancelled while executing!: {item}", workItem?.Method.GetSignature());
+                // Ignore cancellation during shutdown if no item was dequeued
+                if (dequeued)
+                    _logger.LogError("~~ QueuedHostedService: ValueTask was cancelled while executing!: {item}", workItemName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "~~ QueuedHostedService: Error executing ValueTask: {item}", workItem?.Method.GetSignature());
+                _logger.LogError(ex, "~~ QueuedHostedService: Error executing ValueTask: {item}", workItemName);
             }
             finally
             {
-                if (workItem != null)
-                    await _queueInformationUtil.DecrementValueTaskCounter(CancellationToken.None).NoSync();
+                if (dequeued)
+                    await _queueInformationUtil.DecrementValueTaskCounter(CancellationToken.None)
+                                               .NoSync();
             }
         }
     }

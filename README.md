@@ -1,19 +1,29 @@
-[![](https://img.shields.io/nuget/v/Soenneker.Utils.BackgroundQueue.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Utils.BackgroundQueue/)
+﻿[![](https://img.shields.io/nuget/v/Soenneker.Utils.BackgroundQueue.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Utils.BackgroundQueue/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.utils.backgroundqueue/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.utils.backgroundqueue/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/Soenneker.Utils.BackgroundQueue.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Utils.BackgroundQueue/)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Utils.BackgroundQueue
-### A high-performance background Task/ValueTask queue
+
+### A high-performance background Task / ValueTask queue
+
+---
 
 ## Overview
-`BackgroundQueue` provides an efficient way to manage background task execution in .NET applications. It helps prevent application overload by processing tasks in a controlled, asynchronous manner.
+
+`BackgroundQueue` provides a fast, controlled way to execute background work in .NET applications.
+It prevents overload by queueing and processing work asynchronously with configurable limits and built-in tracking.
+
+---
 
 ## Features
-- Supports both `ValueTask` and `Task` types.
-- Configurable queue size to limit resource usage.
-- Built-in tracking of running and pending tasks.
-- Extension methods for easy setup and management.
-- Includes a hosted service for automatic background processing.
+
+* Supports both `Task` and `ValueTask`
+* Configurable queue size
+* Tracks running and pending work
+* Simple DI registration
+* Hosted service for automatic background processing
+
+---
 
 ## Installation
 
@@ -21,7 +31,8 @@
 dotnet add package Soenneker.Utils.BackgroundQueue
 ```
 
-Register the `BackgroundQueue`:
+Register the queue:
+
 ```csharp
 void ConfigureServices(IServiceCollection services)
 {
@@ -29,29 +40,37 @@ void ConfigureServices(IServiceCollection services)
 }
 ```
 
-### Starting
+---
+
+## Starting & Stopping
+
+### Start
+
 ```csharp
 await serviceProvider.WarmupAndStartBackgroundQueue(cancellationToken);
 ```
 
-For synchronous start:
+Synchronous start:
+
 ```csharp
 serviceProvider.WarmupAndStartBackgroundQueueSync(cancellationToken);
 ```
 
-### Stopping
-To stop the service:
+### Stop
+
 ```csharp
 await serviceProvider.StopBackgroundQueue(cancellationToken);
 ```
 
-For synchronous stop:
+Synchronous stop:
+
 ```csharp
 serviceProvider.StopBackgroundQueueSync(cancellationToken);
 ```
 
+---
+
 ## Configuration
-Configure the queue length and task tracking settings in your application:
 
 ```json
 {
@@ -63,12 +82,15 @@ Configure the queue length and task tracking settings in your application:
 }
 ```
 
-- `QueueLength`: Defines the maximum number of tasks in the queue.
-- `LockCounts`: Enables thread-safe counting of running tasks.
-- `Log`: Outputs task tracking information to `ILogger`
+* `QueueLength` – Maximum number of queued items
+* `LockCounts` – Enables thread-safe tracking of running work
+* `Log` – Enables debug logging
 
-## Initializing the Queue
-To use `BackgroundQueue`, you probably want to inject it via your constructor:
+---
+
+## Using the Queue
+
+Inject `IBackgroundQueue`:
 
 ```csharp
 IBackgroundQueue _queue;
@@ -79,37 +101,85 @@ void MyClass(IBackgroundQueue queue)
 }
 ```
 
-## Queueing Tasks
+### Queueing a `ValueTask`
 
-### Queuing a `ValueTask`
-Rather than wrapping the task, you can elide it directly to avoid an extra state machine:
 ```csharp
 await _queue.QueueValueTask(_ => someValueTask(), cancellationToken);
 ```
 
-### Queuing a `Task`
-Similarly, for `Task`:
+### Queueing a `Task`
+
 ```csharp
 await _queue.QueueTask(_ => someTask(), cancellationToken);
 ```
 
-## Waiting for Queue to Empty
-To ensure all queued tasks finish before proceeding:
+---
+
+## ⚠️ Performance Tip: Prefer Stateful Queueing
+
+Avoid capturing variables in lambdas when queueing work. Captured lambdas allocate and can impact performance under load.
+
+### ❌ Avoid (captures state)
+
+```csharp
+await _queue.QueueTask(ct => DoWorkAsync(id, ct));
+```
+
+If `id` is a local variable, this creates a closure.
+
+---
+
+## ✅ Recommended: Pass State Explicitly
+
+Use the stateful overloads with `static` lambdas.
+
+### ValueTask
+
+```csharp
+await _queue.QueueValueTask(
+    myService,
+    static (svc, ct) => svc.ProcessAsync(ct),
+    ct);
+```
+
+### Task
+
+```csharp
+await _queue.QueueTask(
+    (logger, id),
+    static (s, ct) => s.logger.RunAsync(s.id, ct),
+    ct);
+```
+
+**Why this is better:**
+
+* No closure allocations
+* Lower GC pressure
+* Best performance for high-throughput queues
+
+The non-stateful overloads remain available for convenience, but **stateful queueing is recommended** for hot paths.
+
+---
+
+## Waiting for the Queue to Empty
+
 ```csharp
 await queue.WaitUntilEmpty(cancellationToken);
 ```
 
-## Task Tracking
-The queue tracks:
-- The number of active `ValueTask` and `Task` instances.
-- Whether any tasks are still processing.
+---
 
-To check if tasks are running:
+## Task Tracking
+
+Check if work is still processing:
+
 ```csharp
 bool isProcessing = await queueInformationUtil.IsProcessing(cancellationToken);
 ```
 
-To get current task counts:
+Get current counts:
+
 ```csharp
-var (taskCount, valueTaskCount) = await queueInformationUtil.GetCountsOfProcessing(cancellationToken);
+var (taskCount, valueTaskCount) =
+    await queueInformationUtil.GetCountsOfProcessing(cancellationToken);
 ```

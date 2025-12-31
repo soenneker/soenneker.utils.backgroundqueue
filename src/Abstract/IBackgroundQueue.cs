@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Soenneker.Utils.BackgroundQueue.Dtos;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,15 +33,13 @@ public interface IBackgroundQueue
     /// Dequeues a <see cref="ValueTask"/> from the queue for execution.
     /// </summary>
     /// <param name="cancellationToken">An optional token to cancel the operation.</param>
-    /// <returns>A <see cref="ValueTask"/> containing a function that represents the dequeued work item, which accepts a <see cref="CancellationToken"/> and returns a <see cref="ValueTask"/>.</returns>
-    ValueTask<Func<CancellationToken, ValueTask>> DequeueValueTask(CancellationToken cancellationToken = default);
+    ValueTask<ValueTaskEnvelope> DequeueValueTask(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Dequeues a <see cref="Task"/> from the queue for execution.
     /// </summary>
     /// <param name="cancellationToken">An optional token to cancel the operation.</param>
-    /// <returns>A <see cref="ValueTask"/> containing a function that represents the dequeued work item, which accepts a <see cref="CancellationToken"/> and returns a <see cref="Task"/>.</returns>
-    ValueTask<Func<CancellationToken, Task>> DequeueTask(CancellationToken cancellationToken = default);
+    ValueTask<TaskEnvelope> DequeueTask(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// This is really wait until both queues are empty and their work is done, not just are the queues empty.
