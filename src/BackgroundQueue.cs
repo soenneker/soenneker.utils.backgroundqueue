@@ -17,10 +17,6 @@ namespace Soenneker.Utils.BackgroundQueue;
 /// <inheritdoc cref="IBackgroundQueue"/>
 public sealed class BackgroundQueue : IBackgroundQueue
 {
-    public delegate ValueTask ValueTaskWorkItem<in TState>(TState state, CancellationToken ct);
-
-    public delegate Task TaskWorkItem<in TState>(TState state, CancellationToken ct);
-
     private readonly Channel<ValueTaskEnvelope> _valueTaskChannel;
     private readonly Channel<TaskEnvelope> _taskChannel;
 
