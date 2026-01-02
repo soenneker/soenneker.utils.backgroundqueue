@@ -47,7 +47,7 @@
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.747" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.448" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.350" />
-        <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.109" />
+        <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.110" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.102" />
         <PackageReference Include="Soenneker.Utils.Delay" Version="4.0.42" />
     </ItemGroup>
