@@ -43,7 +43,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.1" />
-        <PackageReference Include="Soenneker.Asyncs.Locks" Version="4.0.6" />
+        <PackageReference Include="Soenneker.Asyncs.Locks" Version="4.0.7" />
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.749" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.448" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.350" />
