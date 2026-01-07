@@ -206,7 +206,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
         do
         {
             isProcessing = await _queueInformationUtil.IsProcessing(cancellationToken)
-                                                      .ConfigureAwait(false);
+                                                      .NoSync();
 
             if (isProcessing)
             {
