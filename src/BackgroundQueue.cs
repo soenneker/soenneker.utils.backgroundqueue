@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.Double;
 using Soenneker.Extensions.MethodInfo;
-using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 using Soenneker.Utils.BackgroundQueue.Dtos;
