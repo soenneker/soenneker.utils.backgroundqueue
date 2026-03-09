@@ -1,6 +1,7 @@
-﻿[![](https://img.shields.io/nuget/v/Soenneker.Utils.BackgroundQueue.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Utils.BackgroundQueue/)
+[![](https://img.shields.io/nuget/v/Soenneker.Utils.BackgroundQueue.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Utils.BackgroundQueue/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.utils.backgroundqueue/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.utils.backgroundqueue/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/Soenneker.Utils.BackgroundQueue.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Utils.BackgroundQueue/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.utils.backgroundqueue/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.utils.backgroundqueue/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Utils.BackgroundQueue
 
@@ -82,9 +83,9 @@ serviceProvider.StopBackgroundQueueSync(cancellationToken);
 }
 ```
 
-* `QueueLength` – Maximum number of queued items
-* `LockCounts` – Enables thread-safe tracking of running work
-* `Log` – Enables debug logging
+* `QueueLength` � Maximum number of queued items
+* `LockCounts` � Enables thread-safe tracking of running work
+* `Log` � Enables debug logging
 
 ---
 
@@ -115,11 +116,11 @@ await _queue.QueueTask(_ => someTask(), cancellationToken);
 
 ---
 
-## ⚠️ Performance Tip: Prefer Stateful Queueing
+## ?? Performance Tip: Prefer Stateful Queueing
 
 Avoid capturing variables in lambdas when queueing work. Captured lambdas allocate and can impact performance under load.
 
-### ❌ Avoid (captures state)
+### ? Avoid (captures state)
 
 ```csharp
 await _queue.QueueTask(ct => DoWorkAsync(id, ct));
@@ -129,7 +130,7 @@ If `id` is a local variable, this creates a closure.
 
 ---
 
-## ✅ Recommended: Pass State Explicitly
+## ? Recommended: Pass State Explicitly
 
 Use the stateful overloads with `static` lambdas.
 
