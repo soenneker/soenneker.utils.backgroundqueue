@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup><PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.319" />
-        <PackageReference Include="Soenneker.Utils.Test" Version="4.0.313" /><PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1099" />
+        <PackageReference Include="Soenneker.Utils.Test" Version="4.0.313" /><PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1100" />
     <PackageReference Include="xUnit.v3" Version="3.2.2" /></ItemGroup>
 
     <ItemGroup>
