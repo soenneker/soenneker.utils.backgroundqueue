@@ -18,24 +18,24 @@ using Xunit;
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
 ///<inheritdoc cref="IFixturedUnitTest"/>
-public class FixturedUnitTest : UnitTest, IFixturedUnitTest
+public class HostedUnitTest : UnitTest, IFixturedUnitTest
 {
-    public UnitFixture Fixture { get; }
+    public UnitFixture Host { get; }
 
     public AsyncServiceScope? Scope { get; private set; }
 
     private readonly Lazy<IQueueInformationUtil> _queueInformationUtil;
 
-    public FixturedUnitTest(UnitFixture fixture, ITestOutputHelper testOutputHelper)
+    public HostedUnitTest(UnitFixture Host, ITestOutputHelper testOutputHelper)
     {
-        Fixture = fixture;
+        Host = Host;
 
         var outputSink = Resolve<IInjectableTestOutputSink>();
         outputSink.Inject(testOutputHelper);
 
         _queueInformationUtil = new Lazy<IQueueInformationUtil>(() => Resolve<IQueueInformationUtil>(), LazyThreadSafetyMode.ExecutionAndPublication);
 
-        LazyLogger = new Lazy<ILogger<LoggingTest>>(BuildLogger<FixturedUnitTest>, LazyThreadSafetyMode.ExecutionAndPublication);
+        LazyLogger = new Lazy<ILogger<LoggingTest>>(BuildLogger<HostedUnitTest>, LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     /// <summary>
@@ -51,11 +51,11 @@ public class FixturedUnitTest : UnitTest, IFixturedUnitTest
 
     public T Resolve<T>(bool scoped = false)
     {
-        if (Fixture.ServiceProvider == null)
+        if (Host.ServiceProvider == null)
             throw new Exception($"ServiceProvider was null trying to resolve service {typeof(T).Name}! Not able to resolve service");
 
         if (!scoped)
-            return Fixture.ServiceProvider.Get<T>();
+            return Host.ServiceProvider.Get<T>();
 
         if (Scope == null)
             CreateScope();
@@ -65,10 +65,10 @@ public class FixturedUnitTest : UnitTest, IFixturedUnitTest
 
     public void CreateScope()
     {
-        if (Fixture.ServiceProvider == null)
+        if (Host.ServiceProvider == null)
             throw new Exception("ServiceProvider was null trying create a scope!");
 
-        Scope = Fixture.ServiceProvider.CreateAsyncScope();
+        Scope = Host.ServiceProvider.CreateAsyncScope();
     }
     
     public async ValueTask WaitOnQueueToEmpty(CancellationToken cancellationToken = default)

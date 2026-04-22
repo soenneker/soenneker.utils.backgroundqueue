@@ -6,12 +6,11 @@ using Serilog.Sinks.XUnit.Injectable;
 using Serilog.Sinks.XUnit.Injectable.Abstract;
 using Serilog.Sinks.XUnit.Injectable.Extensions;
 using Soenneker.Extensions.ValueTask;
-using Xunit;
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
 /// <summary>
-/// A base xUnit fixture providing injectable log output and DI mechanisms like IServiceCollection and ServiceProvider
+/// A base xUnit Host providing injectable log output and DI mechanisms like IServiceCollection and ServiceProvider
 /// </summary>
 /// <remarks>Does not use Soenneker.Fixtures.Unit because it'll result in circular dependency</remarks>
 public abstract class UnitFixture : IAsyncLifetime

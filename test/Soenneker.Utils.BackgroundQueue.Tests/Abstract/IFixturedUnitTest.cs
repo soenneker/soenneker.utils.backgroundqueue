@@ -1,13 +1,12 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Utils.BackgroundQueue.Tests.Abstract;
 
 /// <summary>
 /// A fundamental xUnit test that stores UnitFixture and provides synthetic inversion of control. <para/>
-/// It inherits from <see cref="UnitTest"/> and it's most used function is <see cref="Resolve{T}"/> which will reach out to the Fixture and retrieve a service from DI.
+/// It inherits from <see cref="UnitTest"/> and it's most used function is <see cref="Resolve{T}"/> which will reach out to the Host and retrieve a service from DI.
 /// </summary>
 public interface IFixturedUnitTest : IAsyncLifetime
 {

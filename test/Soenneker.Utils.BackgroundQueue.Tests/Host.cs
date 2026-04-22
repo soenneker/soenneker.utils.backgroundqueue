@@ -12,9 +12,9 @@ using Soenneker.Utils.Test;
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
-public class Fixture : UnitFixture
+public class Host : UnitTestHost
 {
-    public override async ValueTask InitializeAsync()
+    public override async Task InitializeAsync()
     {
         SetupIoC(Services);
 

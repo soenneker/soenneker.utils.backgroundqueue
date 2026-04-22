@@ -1,16 +1,15 @@
 using System.Threading.Tasks;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 using Soenneker.Utils.Delay;
-using Xunit;
 
 namespace Soenneker.Utils.BackgroundQueue.Tests;
 
-[Collection("Collection")]
-public class BackgroundQueueTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class BackgroundQueueTests : HostedUnitTest
 {
     private readonly IBackgroundQueue _util;
 
-    public BackgroundQueueTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public BackgroundQueueTests(Host host) : base(host)
     {
         _util = Resolve<IBackgroundQueue>();
     }
@@ -25,7 +24,7 @@ public class BackgroundQueueTests : FixturedUnitTest
         await Delay(1500, "test...");
     }
 
-    [Fact]
+    [Test]
     public async Task WaitOnQueueToEmpty_should_complete_with_Task()
     {
         await _util.QueueTask(_ => TestTask(), CancellationToken);
@@ -35,7 +34,7 @@ public class BackgroundQueueTests : FixturedUnitTest
         await DelayUtil.Delay(500, null, CancellationToken);
     }
 
-    [Fact]
+    [Test]
     public async Task WaitOnQueueToEmpty_should_complete_with_ValueTask()
     {
         await _util.QueueValueTask(_ => TestValueTask(), CancellationToken);

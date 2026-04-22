@@ -1,29 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-            <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-            <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-            <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
-
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="appsettings.json" />
+        <None Remove="appsettings.json" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="appsettings.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+        <Content Include="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
-    <ItemGroup><PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.320" />
-        <PackageReference Include="Soenneker.Utils.Test" Version="4.0.315" /><PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1109" />
-    <PackageReference Include="xUnit.v3" Version="3.2.2" /></ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.320" />
+        <PackageReference Include="Soenneker.Utils.Test" Version="4.0.315" />
+        <PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1115" />
+        <PackageReference Include="TUnit" Version="1.37.24" />
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Utils.BackgroundQueue\Soenneker.Utils.BackgroundQueue.csproj" />
@@ -31,8 +29,7 @@
 
     <ItemGroup>
         <Content Include="testconfig.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
-
 </Project>
