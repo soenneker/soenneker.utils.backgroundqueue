@@ -17,10 +17,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.320" />
+        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.48" />
+        <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.322" />
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.315" />
-        <PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1115" />
-        <PackageReference Include="TUnit" Version="1.37.24" />
+        <PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1120" />
+        <PackageReference Include="TUnit" Version="1.37.36" />
     </ItemGroup>
 
     <ItemGroup>

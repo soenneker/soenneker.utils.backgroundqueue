@@ -27,20 +27,20 @@ public class BackgroundQueueTests : HostedUnitTest
     [Test]
     public async Task WaitOnQueueToEmpty_should_complete_with_Task()
     {
-        await _util.QueueTask(_ => TestTask(), CancellationToken);
+        await _util.QueueTask(_ => TestTask(), System.Threading.CancellationToken.None);
 
-        await WaitOnQueueToEmpty(CancellationToken);
+        await WaitOnQueueToEmpty(System.Threading.CancellationToken.None);
 
-        await DelayUtil.Delay(500, null, CancellationToken);
+        await DelayUtil.Delay(500, null, System.Threading.CancellationToken.None);
     }
 
     [Test]
     public async Task WaitOnQueueToEmpty_should_complete_with_ValueTask()
     {
-        await _util.QueueValueTask(_ => TestValueTask(), CancellationToken);
+        await _util.QueueValueTask(_ => TestValueTask(), System.Threading.CancellationToken.None);
 
-        await WaitOnQueueToEmpty(CancellationToken);
+        await WaitOnQueueToEmpty(System.Threading.CancellationToken.None);
 
-        await DelayUtil.Delay(500, null, CancellationToken);
+        await DelayUtil.Delay(500, null, System.Threading.CancellationToken.None);
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +19,7 @@ public class Host : UnitTestHost
 
         await base.InitializeAsync().NoSync();
 
-        await ServiceProvider!.WarmupAndStartBackgroundQueue().NoSync();
+        await ServicesProvider.WarmupAndStartBackgroundQueue().NoSync();
     }
 
     private static void SetupIoC(IServiceCollection services)
@@ -36,10 +35,7 @@ public class Host : UnitTestHost
 
     public override async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
-
-        if (ServiceProvider != null)
-            await ServiceProvider.StopBackgroundQueue().NoSync();
+        await ServicesProvider.StopBackgroundQueue().NoSync();
 
         await base.DisposeAsync().NoSync();
     }
