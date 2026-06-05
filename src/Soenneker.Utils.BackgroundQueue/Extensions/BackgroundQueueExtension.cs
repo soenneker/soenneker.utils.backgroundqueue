@@ -7,6 +7,9 @@ using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue.Extensions;
 
+/// <summary>
+/// Represents the background queue extension.
+/// </summary>
 public static class BackgroundQueueExtension
 {
     /// <summary>
@@ -26,15 +29,22 @@ public static class BackgroundQueueExtension
         return services.StartBackgroundQueue(cancellationToken);
     }
 
-    /// <inheritdoc cref="WarmupAndStartBackgroundQueue"/>
+    /// <summary>
+    /// Executes the warmup and start background queue sync operation.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public static void WarmupAndStartBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         services.WarmupBackgroundQueue();
         services.StartBackgroundQueueSync(cancellationToken);
     }
 
-    /// <inheritdoc cref="StartBackgroundQueue"/>
-    /// <remarks>Hopefully one day this can be called async in main application lifetime flow.. https://github.com/dotnet/runtime/issues/65656</remarks>
+    /// <summary>
+    /// Executes the start background queue sync operation.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public static void StartBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();
@@ -52,7 +62,11 @@ public static class BackgroundQueueExtension
         return queuedHostedService!.StartAsync(cancellationToken);
     }
 
-    /// <inheritdoc cref="StopBackgroundQueue"/>
+    /// <summary>
+    /// Executes the stop background queue sync operation.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public static void StopBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();
@@ -64,6 +78,12 @@ public static class BackgroundQueueExtension
         queuedHostedService.Dispose();
     }
 
+    /// <summary>
+    /// Executes the stop background queue operation.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public static async ValueTask StopBackgroundQueue(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();

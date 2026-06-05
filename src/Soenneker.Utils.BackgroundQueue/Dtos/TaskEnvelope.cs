@@ -14,8 +14,14 @@ namespace Soenneker.Utils.BackgroundQueue.Dtos;
 /// thread-safe.</remarks>
 public readonly struct TaskEnvelope
 {
+    /// <summary>
+    /// The state.
+    /// </summary>
     public readonly object? State;
 
+    /// <summary>
+    /// The callback.
+    /// </summary>
     public readonly Func<object?, CancellationToken, Task> Callback;
 
     public TaskEnvelope(Func<object?, CancellationToken, Task> callback, object? state)
@@ -24,6 +30,11 @@ public readonly struct TaskEnvelope
         State = state;
     }
 
+    /// <summary>
+    /// Executes the invoke operation.
+    /// </summary>
+    /// <param name="ct">The ct.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task Invoke(CancellationToken ct) => Callback(State, ct);
 }

@@ -15,8 +15,14 @@ namespace Soenneker.Utils.BackgroundQueue.Dtos;
 /// immutable and thread-safe for concurrent use.</remarks>
 public readonly struct ValueTaskEnvelope
 {
+    /// <summary>
+    /// The state.
+    /// </summary>
     public readonly object? State;
 
+    /// <summary>
+    /// The callback.
+    /// </summary>
     public readonly Func<object?, CancellationToken, ValueTask> Callback;
 
     public ValueTaskEnvelope(Func<object?, CancellationToken, ValueTask> callback, object? state)
@@ -25,6 +31,11 @@ public readonly struct ValueTaskEnvelope
         State = state;
     }
 
+    /// <summary>
+    /// Executes the invoke operation.
+    /// </summary>
+    /// <param name="ct">The ct.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ValueTask Invoke(CancellationToken ct) => Callback(State, ct);
 }
