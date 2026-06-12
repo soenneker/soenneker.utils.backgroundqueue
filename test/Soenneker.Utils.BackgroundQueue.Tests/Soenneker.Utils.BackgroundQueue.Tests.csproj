@@ -21,7 +21,7 @@
         <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.325" />
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.319" />
         <PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1174" />
-        <PackageReference Include="TUnit" Version="1.53.0" />
+        <PackageReference Include="TUnit" Version="1.54.0" />
     </ItemGroup>
 
     <ItemGroup>
