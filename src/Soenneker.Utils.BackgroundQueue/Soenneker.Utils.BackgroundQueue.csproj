@@ -46,7 +46,7 @@
         <PackageReference Include="Soenneker.Asyncs.Locks" Version="4.0.57" />
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.843" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.462" />
-        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.367" />
+        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.368" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.116" />
         <PackageReference Include="Soenneker.Utils.Delay" Version="4.0.73" />
     </ItemGroup>
