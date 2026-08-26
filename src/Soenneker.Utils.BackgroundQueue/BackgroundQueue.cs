@@ -9,15 +9,13 @@ using Soenneker.Extensions.MethodInfo;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 using Soenneker.Utils.BackgroundQueue.Dtos;
-using Soenneker.Utils.Delay;
 
 namespace Soenneker.Utils.BackgroundQueue;
 
 /// <inheritdoc cref="IBackgroundQueue"/>
 public sealed class BackgroundQueue : IBackgroundQueue
 {
-    private readonly Channel<ValueTaskEnvelope> _valueTaskChannel;
-    private readonly Channel<TaskEnvelope> _taskChannel;
+    private readonly Channel<WorkItemEnvelope> _channel;
 
     private readonly int _queueLimit;
     private readonly int _queueWarning;
@@ -59,8 +57,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
             AllowSynchronousContinuations = false
         };
 
-        _valueTaskChannel = Channel.CreateBounded<ValueTaskEnvelope>(options);
-        _taskChannel = Channel.CreateBounded<TaskEnvelope>(options);
+        _channel = Channel.CreateBounded<WorkItemEnvelope>(options);
     }
 
     public async ValueTask QueueValueTask(Func<CancellationToken, ValueTask> workItem, CancellationToken cancellationToken = default)
@@ -70,11 +67,10 @@ public sealed class BackgroundQueue : IBackgroundQueue
 
         try
         {
-            // Store the user delegate as state; invoke via a static callback (no closure here)
-            var env = new ValueTaskEnvelope(static (s, ct) => ((Func<CancellationToken, ValueTask>)s!).Invoke(ct), workItem);
+            var env = new WorkItemEnvelope(static (work, _, ct) => ((Func<CancellationToken, ValueTask>)work!).Invoke(ct), workItem, null,
+                isTask: false);
 
-            await _valueTaskChannel.Writer.WriteAsync(env, cancellationToken)
-                                   .NoSync();
+            await _channel.Writer.WriteAsync(env, cancellationToken).NoSync();
         }
         catch
         {
@@ -101,10 +97,10 @@ public sealed class BackgroundQueue : IBackgroundQueue
 
         try
         {
-            var env = new TaskEnvelope(static (s, ct) => ((Func<CancellationToken, Task>)s!).Invoke(ct), workItem);
+            var env = new WorkItemEnvelope(static (work, _, ct) => new ValueTask(((Func<CancellationToken, Task>)work!).Invoke(ct)), workItem, null,
+                isTask: true);
 
-            await _taskChannel.Writer.WriteAsync(env, cancellationToken)
-                              .NoSync();
+            await _channel.Writer.WriteAsync(env, cancellationToken).NoSync();
         }
         catch
         {
@@ -130,15 +126,10 @@ public sealed class BackgroundQueue : IBackgroundQueue
 
         try
         {
-            // Pack BOTH delegate + state into the envelope state
-            var env = new ValueTaskEnvelope(static (s, ct) =>
-            {
-                var payload = ((ValueTaskWorkItem<TState> work, TState st))s!;
-                return payload.work(payload.st, ct);
-            }, (workItem, state));
+            var env = new WorkItemEnvelope(static (work, queuedState, ct) =>
+                ((ValueTaskWorkItem<TState>)work!).Invoke((TState)queuedState!, ct), workItem, state, isTask: false);
 
-            await _valueTaskChannel.Writer.WriteAsync(env, cancellationToken)
-                                   .NoSync();
+            await _channel.Writer.WriteAsync(env, cancellationToken).NoSync();
         }
         catch
         {
@@ -165,14 +156,10 @@ public sealed class BackgroundQueue : IBackgroundQueue
 
         try
         {
-            var env = new TaskEnvelope(static (s, ct) =>
-            {
-                var payload = ((TaskWorkItem<TState> work, TState st))s!;
-                return payload.work(payload.st, ct);
-            }, (workItem, state));
+            var env = new WorkItemEnvelope(static (work, queuedState, ct) =>
+                new ValueTask(((TaskWorkItem<TState>)work!).Invoke((TState)queuedState!, ct)), workItem, state, isTask: true);
 
-            await _taskChannel.Writer.WriteAsync(env, cancellationToken)
-                              .NoSync();
+            await _channel.Writer.WriteAsync(env, cancellationToken).NoSync();
         }
         catch
         {
@@ -191,36 +178,14 @@ public sealed class BackgroundQueue : IBackgroundQueue
             _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
     }
 
-    public ValueTask<ValueTaskEnvelope> DequeueValueTask(CancellationToken cancellationToken = default) =>
-        _valueTaskChannel.Reader.ReadAsync(cancellationToken);
+    public ValueTask<WorkItemEnvelope> Dequeue(CancellationToken cancellationToken = default) => _channel.Reader.ReadAsync(cancellationToken);
 
-    public ValueTask<TaskEnvelope> DequeueTask(CancellationToken cancellationToken = default) => _taskChannel.Reader.ReadAsync(cancellationToken);
-
-    public async ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default)
+    public ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default)
     {
-        const int delayMs = 500;
+        if (_log)
+            _logger.LogDebug("Waiting for the background queue to empty...");
 
-        bool isProcessing;
-
-        do
-        {
-            isProcessing = await _queueInformationUtil.IsProcessing(cancellationToken)
-                                                      .NoSync();
-
-            if (isProcessing)
-            {
-                if (_log)
-                    _logger.LogDebug("Delaying for {ms}ms (Background queue emptying)...", delayMs);
-
-                await DelayUtil.Delay(delayMs, null, cancellationToken)
-                               .NoSync();
-            }
-            else
-            {
-                _logger.LogDebug("Background queue is empty; continuing");
-            }
-        }
-        while (isProcessing);
+        return _queueInformationUtil.WaitUntilEmpty(cancellationToken);
     }
 
     private bool ShouldWarn()

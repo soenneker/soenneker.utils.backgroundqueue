@@ -13,6 +13,8 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
 
     private ValueAtomicInt _taskCount;
     private ValueAtomicInt _valueTaskCount;
+    private ValueAtomicInt _totalCount;
+    private TaskCompletionSource _emptySignal = CreateCompletedSignal();
 
     public QueueInformationUtil(IConfiguration config)
     {
@@ -29,41 +31,75 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
 
     public ValueTask<bool> IsProcessing(CancellationToken cancellationToken = default)
     {
-        if (!_trackCounts)
-            return ValueTask.FromResult(false);
+        return ValueTask.FromResult(_totalCount.Value > 0);
+    }
 
-        return ValueTask.FromResult(_taskCount.Value > 0 || _valueTaskCount.Value > 0);
+    public ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default)
+    {
+        if (_totalCount.Value == 0)
+            return ValueTask.CompletedTask;
+
+        return WaitUntilEmptySlow(cancellationToken);
     }
 
     public ValueTask<int> IncrementValueTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_trackCounts)
-            return ValueTask.FromResult(0);
-
-        return ValueTask.FromResult(_valueTaskCount.Increment());
+        int count = _valueTaskCount.Increment();
+        MarkQueued();
+        return ValueTask.FromResult(_trackCounts ? count : 0);
     }
 
     public ValueTask<int> DecrementValueTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_trackCounts)
-            return ValueTask.FromResult(0);
-
-        return ValueTask.FromResult(_valueTaskCount.Decrement());
+        TaskCompletionSource signal = Volatile.Read(ref _emptySignal);
+        int count = _valueTaskCount.Decrement();
+        MarkCompleted(signal);
+        return ValueTask.FromResult(_trackCounts ? count : 0);
     }
 
     public ValueTask<int> IncrementTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_trackCounts)
-            return ValueTask.FromResult(0);
-
-        return ValueTask.FromResult(_taskCount.Increment());
+        int count = _taskCount.Increment();
+        MarkQueued();
+        return ValueTask.FromResult(_trackCounts ? count : 0);
     }
 
     public ValueTask<int> DecrementTaskCounter(CancellationToken cancellationToken = default)
     {
-        if (!_trackCounts)
-            return ValueTask.FromResult(0);
+        TaskCompletionSource signal = Volatile.Read(ref _emptySignal);
+        int count = _taskCount.Decrement();
+        MarkCompleted(signal);
+        return ValueTask.FromResult(_trackCounts ? count : 0);
+    }
 
-        return ValueTask.FromResult(_taskCount.Decrement());
+    private void MarkQueued()
+    {
+        if (_totalCount.Increment() == 1)
+            Volatile.Write(ref _emptySignal, new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously));
+    }
+
+    private void MarkCompleted(TaskCompletionSource signal)
+    {
+        if (_totalCount.Decrement() == 0)
+            signal.TrySetResult();
+    }
+
+    private async ValueTask WaitUntilEmptySlow(CancellationToken cancellationToken)
+    {
+        while (_totalCount.Value != 0)
+        {
+            TaskCompletionSource signal = Volatile.Read(ref _emptySignal);
+            if (_totalCount.Value == 0)
+                return;
+
+            await signal.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private static TaskCompletionSource CreateCompletedSignal()
+    {
+        var signal = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        signal.SetResult();
+        return signal;
     }
 }

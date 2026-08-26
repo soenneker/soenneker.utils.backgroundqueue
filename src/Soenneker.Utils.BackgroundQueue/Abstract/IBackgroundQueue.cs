@@ -54,16 +54,9 @@ public interface IBackgroundQueue
     ValueTask QueueTask(Func<CancellationToken, Task> workItem, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Dequeues a <see cref="ValueTask"/> from the queue for execution.
+    /// Dequeues the next work item from the shared queue for execution.
     /// </summary>
-    /// <param name="cancellationToken">An optional token to cancel the operation.</param>
-    ValueTask<ValueTaskEnvelope> DequeueValueTask(CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Dequeues a <see cref="Task"/> from the queue for execution.
-    /// </summary>
-    /// <param name="cancellationToken">An optional token to cancel the operation.</param>
-    ValueTask<TaskEnvelope> DequeueTask(CancellationToken cancellationToken = default);
+    ValueTask<WorkItemEnvelope> Dequeue(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// This is really wait until both queues are empty and their work is done, not just are the queues empty.

@@ -19,6 +19,11 @@ public interface IQueueInformationUtil
     ValueTask<bool> IsProcessing(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Asynchronously waits for all queued and currently executing work to complete.
+    /// </summary>
+    ValueTask WaitUntilEmpty(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Not to be called outside of <see cref="IBackgroundQueue"/> or <see cref="IQueuedHostedService"/>
     /// </summary>
     ValueTask<int> IncrementValueTaskCounter(CancellationToken cancellationToken = default);

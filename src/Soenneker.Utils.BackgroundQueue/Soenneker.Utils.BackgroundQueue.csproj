@@ -43,11 +43,11 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.11" />
-        <PackageReference Include="Soenneker.Asyncs.Locks" Version="4.0.68" />
+        <PackageReference Include="Soenneker.Atomics.ValueInts" Version="4.0.23" />
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.859" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.464" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.369" />
+        <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.125" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.118" />
-        <PackageReference Include="Soenneker.Utils.Delay" Version="4.0.78" />
     </ItemGroup>
 </Project>
