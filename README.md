@@ -83,9 +83,9 @@ serviceProvider.StopBackgroundQueueSync(cancellationToken);
 }
 ```
 
-* `QueueLength` – Maximum number of queued items
-* `LockCounts` – Enables thread-safe tracking of running work
-* `Log` – Enables debug logging
+* `QueueLength` - Maximum number of queued items
+* `LockCounts` - Enables thread-safe tracking of running work
+* `Log` - Enables debug logging
 
 ---
 
