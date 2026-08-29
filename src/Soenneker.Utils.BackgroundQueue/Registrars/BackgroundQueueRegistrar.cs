@@ -12,6 +12,7 @@ public static class BackgroundQueueRegistrar
     /// <summary>
     /// Tries to register a high-performance background Task/ValueTask queue (Singleton) as a HostedService
     /// </summary>
+    /// <returns>Tries to register a high-performance background Task/ValueTask queue (Singleton) as a HostedService.</returns>
     public static IServiceCollection AddBackgroundQueueAsSingleton(this IServiceCollection services)
     {
         services.TryAddSingleton<IQueuedHostedService, QueuedHostedService>();

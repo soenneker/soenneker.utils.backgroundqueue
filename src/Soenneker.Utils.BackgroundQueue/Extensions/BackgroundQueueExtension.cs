@@ -23,6 +23,7 @@ public static class BackgroundQueueExtension
     /// <summary>
     /// Retrieves <see cref="IBackgroundQueue"/> from the <see cref="IServiceProvider"/>, warming it up, and then starts it (typically in testing scenarios, this isn't necessary with WebApplicationFactory or regular apps)
     /// </summary>
+    /// <returns>The <see cref="IBackgroundQueue"/> from the <see cref="IServiceProvider"/>, warming it up, and then starts it (typically in testing scenarios, this isn't necessary with WebApplicationFactory or regular apps).</returns>
     public static Task WarmupAndStartBackgroundQueue(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         services.WarmupBackgroundQueue();
@@ -30,10 +31,10 @@ public static class BackgroundQueueExtension
     }
 
     /// <summary>
-    /// Executes the warmup and start background queue sync operation.
+    /// Resolves, warms, and starts the registered background queue synchronously.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="services">The service collection to resolve or update.</param>
+    /// <param name="cancellationToken">Signals that the operation should stop.</param>
     public static void WarmupAndStartBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         services.WarmupBackgroundQueue();
@@ -41,10 +42,10 @@ public static class BackgroundQueueExtension
     }
 
     /// <summary>
-    /// Executes the start background queue sync operation.
+    /// Starts the registered background queue synchronously.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="services">The service collection to resolve or update.</param>
+    /// <param name="cancellationToken">Signals that the operation should stop.</param>
     public static void StartBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();
@@ -56,6 +57,7 @@ public static class BackgroundQueueExtension
     /// </summary>
     /// <param name="services"></param>
     /// <param name="cancellationToken"></param>
+    /// <returns>Typically called in <code>Configure(IApplicationBuilder app)</code>.</returns>
     public static Task StartBackgroundQueue(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();
@@ -63,10 +65,10 @@ public static class BackgroundQueueExtension
     }
 
     /// <summary>
-    /// Executes the stop background queue sync operation.
+    /// Stops the registered background queue synchronously and waits for queued shutdown work.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="services">The service collection to resolve or update.</param>
+    /// <param name="cancellationToken">Signals that the operation should stop.</param>
     public static void StopBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();
@@ -79,11 +81,11 @@ public static class BackgroundQueueExtension
     }
 
     /// <summary>
-    /// Executes the stop background queue operation.
+    /// Stops the registered background queue asynchronously.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="services">The service collection to resolve or update.</param>
+    /// <param name="cancellationToken">Signals that the operation should stop.</param>
+    /// <returns>An awaitable that completes when the queue has stopped.</returns>
     public static async ValueTask StopBackgroundQueue(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();

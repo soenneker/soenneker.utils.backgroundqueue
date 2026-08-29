@@ -56,6 +56,7 @@ public interface IBackgroundQueue
     /// <summary>
     /// Dequeues the next work item from the shared queue for execution.
     /// </summary>
+    /// <returns>Dequeues the next work item from the shared queue for execution.</returns>
     ValueTask<WorkItemEnvelope> Dequeue(CancellationToken cancellationToken = default);
 
     /// <summary>

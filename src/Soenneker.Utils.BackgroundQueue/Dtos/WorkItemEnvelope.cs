@@ -28,6 +28,11 @@ public readonly struct WorkItemEnvelope
 
     public MethodInfo? Method => (WorkItem as Delegate)?.Method;
 
+    /// <summary>
+    /// Invokes the queued callback with its captured state and the supplied cancellation token.
+    /// </summary>
+    /// <param name="cancellationToken">Signals that the operation should stop.</param>
+    /// <returns>An awaitable that completes when the callback finishes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ValueTask Invoke(CancellationToken cancellationToken) => _callback(WorkItem, State, cancellationToken);
 }

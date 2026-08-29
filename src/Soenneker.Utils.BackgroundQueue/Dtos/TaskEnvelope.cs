@@ -31,10 +31,10 @@ public readonly struct TaskEnvelope
     }
 
     /// <summary>
-    /// Executes the invoke operation.
+    /// Invokes the queued callback with its captured state and the supplied cancellation token.
     /// </summary>
-    /// <param name="ct">The ct.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="ct">Signals that the queued callback should stop.</param>
+    /// <returns>An awaitable that completes when the callback finishes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task Invoke(CancellationToken ct) => Callback(State, ct);
 }
