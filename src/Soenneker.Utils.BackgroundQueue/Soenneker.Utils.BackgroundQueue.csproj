@@ -45,7 +45,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.11" />
         <PackageReference Include="Soenneker.Atomics.ValueInts" Version="4.0.23" />
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.861" />
-        <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.464" />
+        <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.465" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.369" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.125" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.118" />
