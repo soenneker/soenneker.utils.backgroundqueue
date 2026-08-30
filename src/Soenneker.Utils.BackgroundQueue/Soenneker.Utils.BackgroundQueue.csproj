@@ -46,7 +46,7 @@
         <PackageReference Include="Soenneker.Atomics.ValueInts" Version="4.0.26" />
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.864" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.466" />
-        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.369" />
+        <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.370" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.127" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.118" />
     </ItemGroup>
