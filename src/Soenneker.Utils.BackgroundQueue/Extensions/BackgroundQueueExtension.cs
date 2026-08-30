@@ -49,7 +49,7 @@ public static class BackgroundQueueExtension
     public static void StartBackgroundQueueSync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var queuedHostedService = services.GetService<IQueuedHostedService>();
-        queuedHostedService!.StartAsync(cancellationToken);
+        queuedHostedService!.StartAsync(cancellationToken).AwaitSync();
     }
 
     /// <summary>

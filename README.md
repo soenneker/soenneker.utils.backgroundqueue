@@ -3,184 +3,70 @@
 [![](https://img.shields.io/nuget/dt/Soenneker.Utils.BackgroundQueue.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Utils.BackgroundQueue/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.utils.backgroundqueue/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.utils.backgroundqueue/actions/workflows/codeql.yml)
 
-# ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Utils.BackgroundQueue
+# Soenneker.Utils.BackgroundQueue
 
-### A high-performance background Task / ValueTask queue
-
----
-
-## Overview
-
-`BackgroundQueue` provides a fast, controlled way to execute background work in .NET applications.
-It prevents overload by queueing and processing work asynchronously with configurable limits and built-in tracking.
-
----
-
-## Features
-
-* Supports both `Task` and `ValueTask`
-* Configurable queue size
-* Tracks running and pending work
-* Simple DI registration
-* Hosted service for automatic background processing
-
----
+A bounded, single-consumer background queue for `Task` and `ValueTask` work items in hosted .NET applications.
 
 ## Installation
 
-```sh
+```bash
 dotnet add package Soenneker.Utils.BackgroundQueue
 ```
 
-Register the queue:
+## Registration
 
 ```csharp
-void ConfigureServices(IServiceCollection services)
-{
-    services.AddBackgroundQueueAsSingleton();
-}
+builder.Services.AddBackgroundQueueAsSingleton();
 ```
 
----
+Registration adds the queue, its counters, and its processor as singletons, and also registers the processor as a hosted service. A normal application host starts and stops it automatically; the manual start helpers are intended for test service providers that do not run hosted services.
 
-## Starting & Stopping
-
-### Start
-
-```csharp
-await serviceProvider.WarmupAndStartBackgroundQueue(cancellationToken);
-```
-
-Synchronous start:
-
-```csharp
-serviceProvider.WarmupAndStartBackgroundQueueSync(cancellationToken);
-```
-
-### Stop
-
-```csharp
-await serviceProvider.StopBackgroundQueue(cancellationToken);
-```
-
-Synchronous stop:
-
-```csharp
-serviceProvider.StopBackgroundQueueSync(cancellationToken);
-```
-
----
-
-## Configuration
+Optional configuration:
 
 ```json
 {
   "Background": {
     "QueueLength": 5000,
-    "LockCounts": false,
+    "LockCounts": true,
     "Log": false
   }
 }
 ```
 
-* `QueueLength` - Maximum number of queued items
-* `LockCounts` - Enables thread-safe tracking of running work
-* `Log` - Enables debug logging
+- `QueueLength` is the bounded channel capacity. Values below `2` use the default of `5000`.
+- `LockCounts` enables per-kind counts returned by `GetCountsOfProcessing()`. Overall processing state and `WaitUntilEmpty()` remain available either way.
+- `Log` enables per-item debug logging.
 
----
-
-## Using the Queue
-
-Inject `IBackgroundQueue`:
+## Queue work
 
 ```csharp
-IBackgroundQueue _queue;
-
-void MyClass(IBackgroundQueue queue)
+public sealed class ImportScheduler(IBackgroundQueue queue)
 {
-    _queue = queue;
+    public ValueTask QueueImport(string path, CancellationToken cancellationToken = default)
+    {
+        return queue.QueueValueTask(
+            path,
+            static (filePath, stoppingToken) => ImportAsync(filePath, stoppingToken),
+            cancellationToken);
+    }
 }
 ```
 
-### Queueing a `ValueTask`
+The stateful overloads keep state separate from a static callback and avoid closure allocations. Non-stateful `QueueTask()` and `QueueValueTask()` overloads are also available.
 
-```csharp
-await _queue.QueueValueTask(_ => someValueTask(), cancellationToken);
-```
+Awaiting a queue call means the item was accepted by the bounded channel; it does not wait for that item to execute. When the channel is full, the call waits for capacity. The cancellation token passed to the queue call cancels that wait. During execution, callbacks receive the hosted service's stopping token.
 
-### Queueing a `Task`
+Exceptions from a work item are logged and do not stop the processor. Work executes sequentially in enqueue order through the queue's single reader.
 
-```csharp
-await _queue.QueueTask(_ => someTask(), cancellationToken);
-```
-
----
-
-## ?? Performance Tip: Prefer Stateful Queueing
-
-Avoid capturing variables in lambdas when queueing work. Captured lambdas allocate and can impact performance under load.
-
-### ? Avoid (captures state)
-
-```csharp
-await _queue.QueueTask(ct => DoWorkAsync(id, ct));
-```
-
-If `id` is a local variable, this creates a closure.
-
----
-
-## ? Recommended: Pass State Explicitly
-
-Use the stateful overloads with `static` lambdas.
-
-### ValueTask
-
-```csharp
-await _queue.QueueValueTask(
-    myService,
-    static (svc, ct) => svc.ProcessAsync(ct),
-    ct);
-```
-
-### Task
-
-```csharp
-await _queue.QueueTask(
-    (logger, id),
-    static (s, ct) => s.logger.RunAsync(s.id, ct),
-    ct);
-```
-
-**Why this is better:**
-
-* No closure allocations
-* Lower GC pressure
-* Best performance for high-throughput queues
-
-The non-stateful overloads remain available for convenience, but **stateful queueing is recommended** for hot paths.
-
----
-
-## Waiting for the Queue to Empty
+## Observe completion
 
 ```csharp
 await queue.WaitUntilEmpty(cancellationToken);
+
+bool busy = await queueInformation.IsProcessing(cancellationToken);
+var (tasks, valueTasks) = await queueInformation.GetCountsOfProcessing(cancellationToken);
 ```
 
----
+`WaitUntilEmpty()` includes both queued and currently executing work. Call it before host shutdown if queued work must complete: stopping the hosted service cancels the active callback and does not drain pending items.
 
-## Task Tracking
-
-Check if work is still processing:
-
-```csharp
-bool isProcessing = await queueInformationUtil.IsProcessing(cancellationToken);
-```
-
-Get current counts:
-
-```csharp
-var (taskCount, valueTaskCount) =
-    await queueInformationUtil.GetCountsOfProcessing(cancellationToken);
-```
+Do not capture request-scoped services in work that may outlive the request scope. Queue stable state instead and create an appropriate service scope inside the callback when scoped dependencies are required.
