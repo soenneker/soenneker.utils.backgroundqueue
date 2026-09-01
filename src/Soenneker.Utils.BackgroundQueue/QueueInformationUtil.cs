@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Soenneker.Atomics.ValueInts;
+using Soenneker.Extensions.Task;
 using Soenneker.Utils.BackgroundQueue.Abstract;
 
 namespace Soenneker.Utils.BackgroundQueue;
@@ -92,7 +93,7 @@ public sealed class QueueInformationUtil : IQueueInformationUtil
             if (_totalCount.Value == 0)
                 return;
 
-            await signal.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await signal.Task.WaitAsync(cancellationToken).NoSync();
         }
     }
 
