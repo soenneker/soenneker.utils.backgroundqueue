@@ -86,7 +86,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
                 _queueWarning, _queueLimit);
         }
 
-        if (_log)
+        if (_log && _logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Queuing ValueTask: {name}", workItem.Method.GetSignature());
     }
 
@@ -115,7 +115,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
                 count, _queueWarning, _queueLimit);
         }
 
-        if (_log)
+        if (_log && _logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
     }
 
@@ -145,7 +145,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
                 _queueWarning, _queueLimit);
         }
 
-        if (_log)
+        if (_log && _logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Queuing ValueTask: {name}", workItem.Method.GetSignature());
     }
 
@@ -174,7 +174,7 @@ public sealed class BackgroundQueue : IBackgroundQueue
                 count, _queueWarning, _queueLimit);
         }
 
-        if (_log)
+        if (_log && _logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Queuing Task: {name}", workItem.Method.GetSignature());
     }
 

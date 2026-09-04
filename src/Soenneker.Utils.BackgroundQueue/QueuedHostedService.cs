@@ -66,7 +66,7 @@ public sealed class QueuedHostedService : BackgroundService, IQueuedHostedServic
                 dequeued = true;
                 isTask = env.IsTask;
 
-                if (_log)
+                if (_log && _logger.IsEnabled(LogLevel.Debug))
                 {
                     workItemName = env.Method?.GetSignature();
                     _logger.LogDebug("~~ QueuedHostedService: Starting {kind}: {item}", isTask ? "Task" : "ValueTask", workItemName);
@@ -74,7 +74,7 @@ public sealed class QueuedHostedService : BackgroundService, IQueuedHostedServic
 
                 await env.Invoke(cancellationToken).NoSync();
 
-                if (_log)
+                if (_log && _logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug("~~ QueuedHostedService: Completed {kind}: {item}", isTask ? "Task" : "ValueTask", workItemName);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
