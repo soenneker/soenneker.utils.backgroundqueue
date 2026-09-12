@@ -19,7 +19,7 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.95" />
         <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.335" />
-        <PackageReference Include="Soenneker.Utils.Delay" Version="4.0.85" />
+        <PackageReference Include="Soenneker.Utils.Delay" Version="4.0.86" />
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.328" />
         <PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1320" />
         <PackageReference Include="TUnit" Version="1.67.0" />
