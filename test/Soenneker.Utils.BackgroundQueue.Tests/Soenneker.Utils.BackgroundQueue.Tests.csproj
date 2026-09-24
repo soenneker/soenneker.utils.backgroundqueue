@@ -28,5 +28,9 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Utils.BackgroundQueue\Soenneker.Utils.BackgroundQueue.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
+        <PackageReference Include="Soenneker.Atomics.ValueBools" Version="4.0.44" />
+    </ItemGroup>
 </Project>
 
