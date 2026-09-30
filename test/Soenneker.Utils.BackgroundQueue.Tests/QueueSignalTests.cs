@@ -15,7 +15,7 @@ public class QueueSignalTests
         if (!condition) throw new InvalidOperationException(message);
     }
     [Test]
-    public async Task WaitersShareSignalAndCancellationDoesNotCancelOthers()
+    public async ValueTask WaitersShareSignalAndCancellationDoesNotCancelOthers()
     {
         var info = new QueueInformationUtil(Fixture.Config());
         await info.IncrementTaskCounter();
@@ -33,7 +33,7 @@ public class QueueSignalTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async Task ConcurrentQueueWavesNeverLoseWakeups(bool trackCounts)
+    public async ValueTask ConcurrentQueueWavesNeverLoseWakeups(bool trackCounts)
     {
         var info = new QueueInformationUtil(Fixture.Config(counts: trackCounts));
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
