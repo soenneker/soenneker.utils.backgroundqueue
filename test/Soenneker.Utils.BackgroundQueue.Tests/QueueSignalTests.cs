@@ -15,25 +15,25 @@ public class QueueSignalTests
         if (!condition) throw new InvalidOperationException(message);
     }
     [Test]
-    public async ValueTask WaitersShareSignalAndCancellationDoesNotCancelOthers()
+    public async ValueTask WaitersShareSignalAndCancellationDoesNotCancelOthers(CancellationToken cancellationToken)
     {
         var info = new QueueInformationUtil(Fixture.Config());
-        await info.IncrementTaskCounter();
+        await info.IncrementTaskCounter(cancellationToken: cancellationToken);
         using var cts = new CancellationTokenSource();
         Task canceled = info.WaitUntilEmpty(cts.Token).AsTask();
-        Task other = info.WaitUntilEmpty().AsTask();
+        Task other = info.WaitUntilEmpty(cancellationToken: cancellationToken).AsTask();
         cts.Cancel();
         try { await canceled; throw new Exception("Cancellation was ignored"); }
         catch (OperationCanceledException) { }
         Check(!other.IsCompleted, "One waiter's cancellation affected another");
-        await info.DecrementTaskCounter();
-        await other.WaitAsync(TimeSpan.FromSeconds(5));
+        await info.DecrementTaskCounter(cancellationToken: cancellationToken);
+        await other.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
     }
 
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async ValueTask ConcurrentQueueWavesNeverLoseWakeups(bool trackCounts)
+    public async ValueTask ConcurrentQueueWavesNeverLoseWakeups(bool trackCounts, CancellationToken cancellationToken)
     {
         var info = new QueueInformationUtil(Fixture.Config(counts: trackCounts));
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
@@ -41,11 +41,11 @@ public class QueueSignalTests
         {
             for (int i = 0; i < 4000; i++)
             {
-                await info.IncrementTaskCounter();
+                await info.IncrementTaskCounter(cancellationToken: cancellationToken);
                 if ((i & 31) == 0) await Task.Yield();
-                await info.DecrementTaskCounter();
+                await info.DecrementTaskCounter(cancellationToken: cancellationToken);
             }
-        })).ToArray();
+        }, cancellationToken: cancellationToken)).ToArray();
         var waiters = Enumerable.Range(0, 4).Select(_ => Task.Run(async () =>
         {
             for (int i = 0; i < 1000; i++)
@@ -53,10 +53,10 @@ public class QueueSignalTests
                 await info.WaitUntilEmpty(timeout.Token);
                 await Task.Yield();
             }
-        })).ToArray();
+        }, cancellationToken: cancellationToken)).ToArray();
         await Task.WhenAll(producers.Concat(waiters)).WaitAsync(timeout.Token);
-        Check(!await info.IsProcessing(), "Counters did not return to zero");
-        Check(await info.GetCountsOfProcessing() == (0, 0), "Unbalanced counters");
+        Check(!await info.IsProcessing(cancellationToken: cancellationToken), "Counters did not return to zero");
+        Check(await info.GetCountsOfProcessing(cancellationToken: cancellationToken) == (0, 0), "Unbalanced counters");
     }
 }
 
