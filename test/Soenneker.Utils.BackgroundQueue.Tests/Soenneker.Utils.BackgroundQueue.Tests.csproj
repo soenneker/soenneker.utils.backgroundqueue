@@ -22,7 +22,7 @@
         <PackageReference Include="Soenneker.Utils.Delay" Version="4.0.93" />
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.332" />
         <PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1371" />
-        <PackageReference Include="TUnit" Version="1.73.19" />
+        <PackageReference Include="TUnit" Version="1.74.0" />
     </ItemGroup>
 
     <ItemGroup>
