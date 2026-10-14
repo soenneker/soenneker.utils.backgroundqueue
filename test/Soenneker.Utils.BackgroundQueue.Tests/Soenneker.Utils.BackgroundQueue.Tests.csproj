@@ -30,7 +30,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
-        <PackageReference Include="Soenneker.Atomics.ValueBools" Version="4.0.48" />
+        <PackageReference Include="Soenneker.Atomics.ValueBools" Version="4.0.51" />
     </ItemGroup>
 </Project>
 
