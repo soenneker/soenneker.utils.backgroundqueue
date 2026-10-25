@@ -44,7 +44,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.13" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.14" />
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.910" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.479" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.383" />
