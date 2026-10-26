@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.131" />
+        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.132" />
         <PackageReference Include="Soenneker.Extensions.ServiceProvider" Version="4.0.348" />
         <PackageReference Include="Soenneker.Utils.Delay" Version="11.0.106" />
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.342" />
