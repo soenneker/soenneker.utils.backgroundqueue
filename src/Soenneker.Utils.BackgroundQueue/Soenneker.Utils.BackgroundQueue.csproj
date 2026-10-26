@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
         <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
         <Nullable>enable</Nullable>
@@ -10,7 +10,7 @@
 
     <PropertyGroup>
         <Description>A high-performance background Task/ValueTask queue</Description>
-        <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
+        <Version Condition="'$(BUILD_VERSION)' == ''">11.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.Utils.BackgroundQueue</AssemblyName>
         <PackageId>Soenneker.Utils.BackgroundQueue</PackageId>
@@ -44,8 +44,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.14" />
-        <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.912" />
+        <PackageReference Include="Soenneker.Extensions.Configuration" Version="11.0.913" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="4.0.479" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="4.0.383" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.140" />
