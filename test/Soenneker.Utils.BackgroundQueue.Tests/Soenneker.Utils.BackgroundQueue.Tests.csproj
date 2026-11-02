@@ -31,7 +31,6 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
-        <PackageReference Include="Soenneker.Atomics.ValueBools" Version="11.0.55" />
     </ItemGroup>
 </Project>
 
