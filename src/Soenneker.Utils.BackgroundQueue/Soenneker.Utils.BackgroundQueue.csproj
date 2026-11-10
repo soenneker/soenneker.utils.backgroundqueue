@@ -44,10 +44,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Extensions.Configuration" Version="11.0.914" />
+        <PackageReference Include="Soenneker.Extensions.Configuration" Version="11.0.915" />
         <PackageReference Include="Soenneker.Extensions.Double" Version="11.0.480" />
         <PackageReference Include="Soenneker.Extensions.MethodInfo" Version="11.0.385" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="11.0.141" />
-        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.133" />
+        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="11.0.134" />
     </ItemGroup>
 </Project>
