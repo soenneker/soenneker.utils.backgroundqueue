@@ -47,7 +47,8 @@ public sealed class BackgroundQueue : IBackgroundQueue
 
         _queueWarning = (_queueLimit * .5).ToInt();
 
-        _logger.LogDebug("Creating background queue with limit: {length}", _queueLimit);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Creating background queue with limit: {length}", _queueLimit);
 
         var options = new BoundedChannelOptions(_queueLimit)
         {
